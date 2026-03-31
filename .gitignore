@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config
+*.log
+.env
+*.bak
+
+# Embedded git repos (submodules)
+F5-TTS/
+GPT-SoVITS/
+Ro-F5TTS/
+fish-speech/
+training_workspace/F5-TTS/
+adapters/
