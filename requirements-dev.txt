@@ -2,5 +2,6 @@
 -r requirements-site.txt
 numpy==1.26.4
 soundfile==0.13.1
+scipy==1.17.0
 pytest==9.0.2
 playwright==1.64.0
