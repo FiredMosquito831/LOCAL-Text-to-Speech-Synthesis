@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="page-hero">
+  <p class="eyebrow">FAQ</p>
+  <h1>The questions the README used to dodge.</h1>
+  <p class="lede">
+    Short answers, grounded in the current source tree. If an answer says
+    “not implemented”, that is a deliberate statement about this revision.
+  </p>
+</section>
+
+<section class="section faq-section">
+  <dl class="faq-list large">
+    <dt>Is this really local? Does it phone home?</dt>
+    <dd>The application has no analytics, telemetry or cloud TTS client. Text, reference audio and generated WAVs stay on disk. The one network dependency is the Hugging Face download of model weights (F5-TTS checks and weights, plus any upstream vocoder assets) on first use. After those are cached, synthesis does not require a network.</dd>
+
+    <dt>Which backend actually works?</dt>
+    <dd>F5-TTS is the complete path and the default. GPT-SoVITS has a real integration when its external package and weights are installed. Fish Speech is a scaffold that returns a placeholder tone; the ONNX, OpenVINO, TensorRT, DirectML, llama.cpp and vLLM classes are interfaces only.</dd>
+
+    <dt>Why are there 9 backends if only one works?</dt>
+    <dd>Because the repository contains a real backend abstraction and registry intended to grow. The site and README label implementation status instead of listing all nine as usable. That distinction is the point of the revamp.</dd>
+
+    <dt>Can I clone a voice?</dt>
+    <dd>Yes on F5-TTS: pass a reference clip with <code>--voice</code> or save a profile in the studio. Quality depends on the reference (clean speech, low noise, a few seconds to ~30 seconds) and the model. GPT-SoVITS follows its upstream reference workflow when installed.</dd>
+
+    <dt>Do I need a GPU?</dt>
+    <dd>No. The device resolver falls back to CPU. CPU inference is slower; the code contains no measured CPU latency figures. CUDA is used automatically when available.</dd>
+
+    <dt>How much VRAM do I need?</dt>
+    <dd>The declared capability floors are 1.5 GB for F5-TTS, 2 GB for GPT-SoVITS and 2 GB for Fish Speech. The studio ships presets targeting 3–6 GB. These are configuration targets from the source, not measured peak usage.</dd>
+
+    <dt>What do the quantization flags do?</dt>
+    <dd>FP16 works. INT8 applies dynamic quantization on CPU; on CUDA it logs a message and uses FP16. INT4 and GGUF are accepted by the CLI but not applied to F5-TTS. The GGUF/GPTQ/AWQ conversion routines are placeholders.</dd>
+
+    <dt>Why does my output sound like a beep?</dt>
+    <dd>You are on a stub path. GPT-SoVITS without its package returns a 220 Hz tone; Fish Speech returns a 330 Hz tone. Check the log for “placeholder audio”. This is deliberate graceful degradation in the current code, and a known limitation.</dd>
+
+    <dt>Is long text supported?</dt>
+    <dd>There is a chunking and crossfade-stitching module, and the studio exposes chunk modes. The CLI does not automatically wrap input in <code>LongTextSynthesizer</code>, so very long CLI input goes to the backend as-is. For now, split long scripts yourself or use the studio.</dd>
+
+    <dt>Does it support Romanian / Chinese / other languages?</dt>
+    <dd>The UI exposes English, Romanian, Chinese and auto-detect. Auto-detect is a character heuristic (Romanian diacritics, CJK, else English). Actual language quality is a property of the model weights and upstream packages, not of this orchestration layer.</dd>
+
+    <dt>Why does the backends panel recommend TensorRT if synthesis is not implemented?</dt>
+    <dd>The auto-selector scores capability metadata, including speed multipliers declared by scaffold classes. It can therefore recommend a target that cannot yet synthesize. Treat the recommendation as a hint, and use <code>--backend f5-tts</code> for audio today.</dd>
+
+    <dt>What Python version should I use?</dt>
+    <dd>3.10–3.12. The pinned torch 2.5.1 wheels do not support Python 3.13, even though the old README claimed 3.8+. <code>requirements_ultimate.txt</code> is a Windows/CUDA 12.1 lockfile; Linux users need matching torch builds.</dd>
+
+    <dt>Can I use this commercially?</dt>
+    <dd>The repository is MIT licensed. Model weights and third-party packages have their own licenses — F5-TTS, GPT-SoVITS and Fish Speech are separate projects. Check those before commercial use, and check the license of any voice you clone.</dd>
+
+    <dt>How do I contribute?</dt>
+    <dd>See <a href="{{ repo_url }}/blob/master/CONTRIBUTING.md">CONTRIBUTING.md</a>. The most useful contributions right now are real synthesis paths for the runtime scaffolds, benchmark harnesses with reproducible hardware, and tests that do not require model downloads.</dd>
+  </dl>
+</section>
+
+<div class="section next-links">
+  <a href="/about.html"><span class="mono micro">NEXT</span> About &amp; security →</a>
+  <a href="{{ repo_url }}/issues"><span class="mono micro">OPEN</span> Ask or report an issue →</a>
+</div>
+{% endblock %}

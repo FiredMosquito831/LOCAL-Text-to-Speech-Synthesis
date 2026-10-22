@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="page-hero">
+  <p class="eyebrow">About · security · license</p>
+  <h1>A local tool should be auditable.</h1>
+  <p class="lede">
+    VoiceSynth Studio is a Python orchestration layer around open TTS models.
+    This page describes what it does with your data, what it downloads, and what
+    it deliberately does not do.
+  </p>
+</section>
+
+<section class="section">
+  <div class="two-col">
+    <div>
+      <h2>What this project is</h2>
+      <p>
+        A local-first TTS workstation: a backend interface, an inference manager,
+        a PyQt6 studio and a CLI. It is a unified front end for external model
+        families, not a new TTS model. The repository contains roughly
+        {{ "{:,}".format(data.stats.python_lines) }} lines of Python across
+        {{ data.stats.python_files }} files, with {{ data.stats.core_modules }} core
+        modules.
+      </p>
+      <p>
+        The design goal is a predictable local workflow: choose a backend,
+        provide a reference voice if you want cloning, synthesize, review the
+        waveform, save audio. Batch and profile management are support features,
+        not cloud services.
+      </p>
+    </div>
+    <div class="fact-panel">
+      <p class="mono micro">AT A GLANCE</p>
+      <dl class="fact-list">
+        <div><dt>Version</dt><dd>{{ data.version }}</dd></div>
+        <div><dt>License</dt><dd>MIT</dd></div>
+        <div><dt>UI</dt><dd>PyQt6</dd></div>
+        <div><dt>State</dt><dd>SQLite + JSON</dd></div>
+        <div><dt>Site host</dt><dd class="mono">{{ site_host }}</dd></div>
+        <div><dt>Repository</dt><dd><a href="{{ repo_url }}">GitHub</a></dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="section section-panel" id="security">
+  <div class="section-head">
+    <p class="eyebrow">Security model</p>
+    <h2>Data flow, stated plainly.</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead><tr><th scope="col">Data</th><th scope="col">Where it goes</th><th scope="col">Persisted?</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Text you synthesize</th><td>Local process memory, then the selected model backend. No remote TTS API.</td><td>Only if you save a text file; the app does not log text content beyond a character count.</td></tr>
+        <tr><th scope="row">Reference / cloned audio</th><td>Local filesystem and the model process.</td><td>Path and transcript may be stored in your profile database if you save a profile.</td></tr>
+        <tr><th scope="row">Generated WAV</th><td>Local output path you choose.</td><td>Yes, by definition.</td></tr>
+        <tr><th scope="row">Speaker profiles</th><td>SQLite at <code>~/.config/voicesynth/profiles.db</code>.</td><td>Yes; export/import is a JSON <code>.vsp</code> file.</td></tr>
+        <tr><th scope="row">Model weights</th><td>Hugging Face Hub on first use.</td><td>Cached under <code>~/.cache/huggingface/hub</code>.</td></tr>
+        <tr><th scope="row">Logs</th><td>stderr/stdout.</td><td>Backend names, progress and errors; no telemetry upload.</td></tr>
+        <tr><th scope="row">This website</th><td>GitHub Pages.</td><td>No analytics scripts, no cookies, no third-party fonts or trackers.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="security-grid">
+    <article>
+      <h3>No authentication or server surface</h3>
+      <p>The desktop app opens no HTTP port. It does not ship an API server. There are no credentials or API keys to manage.</p>
+    </article>
+    <article>
+      <h3>Third-party model trust</h3>
+      <p>Weights and model code are downloaded from Hugging Face and installed from upstream Git repositories. You are trusting those projects and the integrity of your network. Pin revisions where it matters to you.</p>
+    </article>
+    <article>
+      <h3>File paths are user-supplied</h3>
+      <p>Reference audio, text files, adapters and output paths come from the user. The app writes where you point it; it does not sandbox paths.</p>
+    </article>
+    <article>
+      <h3>Placeholder fallbacks are intentional</h3>
+      <p>Some backends return tones instead of failing. This is a usability choice, not a security boundary; check logs if audio is unexpected.</p>
+    </article>
+  </div>
+
+  <div class="callout callout-warn">
+    <strong>Voice cloning and consent.</strong>
+    Clone only voices you have permission to use. Synthetic speech can be
+    mistaken for a real person. The project does not add watermarks or
+    provenance metadata to generated audio, and the MIT license grants no rights
+    to third-party voices or model weights.
+  </div>
+</section>
+
+<section class="section">
+  <div class="two-col">
+    <div>
+      <h2>Reporting a vulnerability</h2>
+      <p>
+        Open a private security advisory on GitHub, or contact the maintainer via
+        the repository. Do not publish exploitable details before a fix is
+        available. See <a href="{{ repo_url }}/blob/master/SECURITY.md">SECURITY.md</a>
+        for scope and expectations.
+      </p>
+      <h2>License</h2>
+      <p>
+        The source is released under the MIT License. Model weights, vocoders and
+        third-party repositories retain their own licenses: F5-TTS, GPT-SoVITS,
+        Fish Speech, ONNX Runtime, OpenVINO, TensorRT, llama.cpp and vLLM.
+      </p>
+    </div>
+    <div class="note-card">
+      <p class="mono micro">ACKNOWLEDGEMENTS</p>
+      <ul class="link-list">
+        <li><a href="https://github.com/SWivid/F5-TTS" rel="noopener">F5-TTS</a> — diffusion TTS and vocoder</li>
+        <li><a href="https://github.com/RVC-Boss/GPT-SoVITS" rel="noopener">GPT-SoVITS</a> — cloning-focused TTS</li>
+        <li><a href="https://github.com/fishaudio/fish-speech" rel="noopener">Fish Speech</a> — multilingual TTS</li>
+        <li><a href="https://github.com/racai-ro/Ro-F5TTS" rel="noopener">Ro-F5TTS</a> — Romanian adapter reference</li>
+      </ul>
+      <p class="fineprint">Listing a project does not mean its backend is complete here. See the <a href="/backends.html">matrix</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Repository map</p>
+    <h2>Where things live.</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <tbody>
+        <tr><th scope="row"><code>main.py</code></th><td>Entry point; argparse CLI and PyQt6 launch.</td></tr>
+        <tr><th scope="row"><code>core/</code></th><td>Backend contract, registry, backends, inference manager and support services.</td></tr>
+        <tr><th scope="row"><code>ui/</code></th><td>PyQt6 studio panels, waveform widget, GPU monitor and styles.</td></tr>
+        <tr><th scope="row"><code>utils/</code></th><td>NVML GPU monitoring helpers.</td></tr>
+        <tr><th scope="row"><code>scripts/</code></th><td>Weight setup plus the deterministic site generator.</td></tr>
+        <tr><th scope="row"><code>training_workspace/</code></th><td>F5-TTS dataset preparation and training launcher.</td></tr>
+        <tr><th scope="row"><code>site/</code> + <code>docs/</code></th><td>Site source and generated GitHub Pages output.</td></tr>
+        <tr><th scope="row"><code>tests/</code></th><td>Model-free pytest coverage for core behaviour and the site build.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="section next-links">
+  <a href="{{ repo_url }}"><span class="mono micro">SOURCE</span> GitHub repository →</a>
+  <a href="/faq.html"><span class="mono micro">BACK</span> FAQ →</a>
+</div>
+{% endblock %}

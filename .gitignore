@@ -28,6 +28,12 @@ Thumbs.db
 .env
 *.bak
 
+# Test / tooling caches
+.pytest_cache/
+.playwright/
+test-results/
+playwright-report/
+
 # Embedded git repos (submodules)
 F5-TTS/
 GPT-SoVITS/

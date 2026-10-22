@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="notfound">
+  <div class="notfound-inner">
+    <p class="eyebrow"><span class="pulse-dot"></span>404 · signal lost</p>
+    <h1>That channel is silent.</h1>
+    <p class="lede">
+      The page you requested is not in the rack. The waveform below is flat, which
+      is exactly what a missing route sounds like.
+    </p>
+    <div class="flatline" aria-hidden="true">
+      {% for h in [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,10,18,8,22,14,6,4,4,4,4,4,4,4,4,4] %}
+      <i style="--h: {{ h }}px"></i>
+      {% endfor %}
+    </div>
+    <div class="notfound-actions">
+      <a class="btn btn-primary" href="/">Back to the studio</a>
+      <a class="btn btn-ghost" href="/quickstart.html">Install guide</a>
+      <a class="btn btn-ghost" href="/usage.html">CLI reference</a>
+    </div>
+    <p class="mono micro muted">404 · {{ site_url }}/404.html</p>
+  </div>
+</section>
+{% endblock %}

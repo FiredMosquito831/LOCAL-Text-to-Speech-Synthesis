@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="page-hero">
+  <p class="eyebrow">Backend matrix</p>
+  <h1>What runs, what loads, what is only an interface.</h1>
+  <p class="lede">
+    This page is generated from <code>CAPABILITIES</code> blocks and
+    <code>BackendRegistry</code> calls in the repository. Status labels are
+    derived from whether <code>synthesize()</code> raises
+    <code>NotImplementedError</code>, not from a feature wishlist.
+  </p>
+</section>
+
+<section class="section">
+  <div class="legend">
+    <span><span class="status status-ok">implemented</span> has a synthesis path</span>
+    <span><span class="status status-warn">scaffold</span> loads, but falls back to a placeholder tone</span>
+    <span><span class="status status-muted">interface</span> model/session loading only</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">Model backends</p>
+    <h2>The three synthesis families.</h2>
+  </div>
+  <div class="backend-detail-grid">
+    {% for backend in data.model_backends %}
+    <article class="backend-detail">
+      <div class="card-top">
+        <span class="mono tag">{{ backend.backend_type }}</span>
+        {% if backend.status == 'implemented' %}<span class="status status-ok">implemented</span>
+        {% elif backend.status == 'scaffold' %}<span class="status status-warn">scaffold</span>
+        {% else %}<span class="status status-muted">interface</span>{% endif %}
+      </div>
+      <h3>{{ backend.name }}</h3>
+      <p class="mono classname">{{ backend.class_name }} · core/{{ backend.module }}.py</p>
+
+      <div class="spec-grid">
+        <div><span class="mono micro">VRAM FLOOR</span><b>{{ backend.vram_label }}</b></div>
+        <div><span class="mono micro">SAMPLE RATE</span><b>{{ backend.target_sample_rate }} Hz</b></div>
+        <div><span class="mono micro">PRECISION</span><b>{{ backend.supports_quantization | join(' · ') }}</b></div>
+        <div><span class="mono micro">PLATFORMS</span><b>{% if backend.windows_supported %}Windows{% endif %}{% if backend.windows_supported and backend.linux_supported %} · {% endif %}{% if backend.linux_supported %}Linux{% endif %}</b></div>
+      </div>
+
+      {% if backend.module == 'backend_f5' %}
+      <p>
+        The complete path. Uses upstream <code>f5_tts</code> for
+        <code>preprocess_ref_audio_text()</code> and <code>infer_process()</code>,
+        supports zero-shot reference audio, NFE steps, speed control and full
+        checkpoint adapters. Weights: <code>SWivid/F5-TTS</code>
+        (<code>F5TTS_v1_Base</code>).
+      </p>
+      <ul class="check-list compact">
+        <li>Default backend in both CLI and GUI.</li>
+        <li>INT8 on CUDA is converted to FP16; CPU can use dynamic INT8.</li>
+        <li>Without a reference clip, falls back to the F5 example reference shipped by the package.</li>
+      </ul>
+      {% elif backend.module == 'backend_gptsovits' %}
+      <p>
+        Calls the external <code>GPT_SoVITS.TTS_infer_pack.TTS</code> API with v2
+        or v1 pretrained paths. It is a real integration, but the dependency and
+        weights live outside this repository.
+      </p>
+      <ul class="check-list compact">
+        <li>Requires a GPT-SoVITS checkout and pretrained weights.</li>
+        <li>If the import fails, <code>load()</code> stores a stub and synthesis returns a 220 Hz tone with a warning.</li>
+        <li>Language handling follows the upstream package; the CLI passes a hint, not a full language matrix.</li>
+      </ul>
+      {% else %}
+      <p>
+        Experimental integration. <code>load()</code> imports the Fish Speech
+        modules, but the inference engine is never assigned, and
+        <code>synthesize()</code> always reaches the placeholder-tone fallback in
+        this revision.
+      </p>
+      <ul class="check-list compact">
+        <li>Do not use for production or quality comparisons yet.</li>
+        <li>The files document the intended architecture (LLaMA semantic tokens + Firefly/DAC vocoder) but do not implement it.</li>
+        <li>vLLM acceleration is also not wired.</li>
+      </ul>
+      {% endif %}
+
+      <p class="fineprint">Declared speed multiplier: {{ backend.speed_multiplier }}× · quality rating {{ backend.quality_rating }}/5. These are capability metadata used by the auto-selector, not measured benchmarks.</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Runtime targets</p>
+    <h2>Registered in the registry, status included.</h2>
+    <p class="section-lede">
+      These classes are registered with <code>BackendRegistry</code>. Several can
+      load a compiled model, ONNX session or GGUF file — none of them synthesize
+      audio in this release.
+    </p>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix wide">
+      <caption class="sr-only">Runtime backend capabilities</caption>
+      <thead>
+        <tr>
+          <th scope="col">Target</th><th scope="col">Type</th><th scope="col">Status</th>
+          <th scope="col">VRAM</th><th scope="col">Precision</th><th scope="col">Compile</th>
+          <th scope="col">Platforms</th><th scope="col">Synthesis</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for backend in data.backends %}
+        <tr>
+          <th scope="row">{{ backend.name }}<span class="row-sub mono">{{ backend.class_name }}</span></th>
+          <td class="mono">{{ backend.kind }}</td>
+          <td>
+            {% if backend.status == 'implemented' %}<span class="status status-ok">implemented</span>
+            {% elif backend.status == 'scaffold' %}<span class="status status-warn">scaffold</span>
+            {% else %}<span class="status status-muted">interface</span>{% endif %}
+          </td>
+          <td class="mono">{{ backend.vram_label }}</td>
+          <td class="mono">{{ backend.supports_quantization | join(', ') }}</td>
+          <td class="mono">{% if backend.requires_compilation %}required{% else %}no{% endif %}</td>
+          <td class="mono">{% if backend.windows_supported %}WIN{% endif %}{% if backend.windows_supported and backend.linux_supported %} + {% endif %}{% if backend.linux_supported %}LINUX{% endif %}</td>
+          <td class="mono">{% if backend.supports_synthesis %}yes{% else %}not implemented{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="two-col">
+    <div>
+      <h2>How a backend is selected</h2>
+      <ol class="steps-list">
+        <li><span class="mono">01</span><div><strong>CLI</strong> uses the literal <code>--backend</code> value (default <code>f5-tts</code>).</div></li>
+        <li><span class="mono">02</span><div><strong>GUI</strong> switches the inference manager's backend from the TTS/Backend tabs.</div></li>
+        <li><span class="mono">03</span><div><strong>Auto-selector</strong> scores registered backends by VRAM, platform and declared quality/speed. It is available as <code>get_best_backend()</code> but the GUI does not force it.</div></li>
+        <li><span class="mono">04</span><div><strong>InferenceManager</strong> resolves <code>auto</code> to CUDA when torch reports it, otherwise CPU.</div></li>
+      </ol>
+    </div>
+    <div class="note-card">
+      <p class="mono micro">SELECTION CASCADE</p>
+      <div class="code-inline">
+        <code>--backend</code> → InferenceManager → backend class<br>
+        <code>--device auto</code> → CUDA if available → CPU<br>
+        <code>--quantization</code> → backend load → effective precision
+      </div>
+      <p class="fineprint">The auto-selector can recommend TensorRT or vLLM on capable hardware even though those synthesis paths are incomplete. Treat its recommendation as a capability hint, not a promise.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Precision</p>
+    <h2>What the flags really do.</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead><tr><th scope="col">CLI value</th><th scope="col">F5-TTS behaviour</th><th scope="col">Notes</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>fp16</code></th><td>Model runs in half precision.</td><td>The useful GPU default.</td></tr>
+        <tr><th scope="row"><code>int8</code></th><td>CUDA → FP16 with a log message; CPU → <code>torch.quantization.quantize_dynamic</code> on Linear layers.</td><td>CLI default. Not a true CUDA INT8 kernel.</td></tr>
+        <tr><th scope="row"><code>int4</code></th><td>Accepted by argparse; no F5-TTS quantization path.</td><td>Do not expect a VRAM reduction.</td></tr>
+        <tr><th scope="row"><code>gguf-q4</code> / <code>gguf-q8</code></th><td>Accepted by argparse; GGUF conversion is a placeholder in <code>core/quantization.py</code>.</td><td>Useful only if you already have a compatible GGUF and a working runtime, which this release does not provide.</td></tr>
+        <tr><th scope="row"><code>fp32</code> / <code>bf16</code></th><td>Known to the quantization catalogue; not exposed by the CLI.</td><td>Backend classes default to FP16.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="section next-links">
+  <a href="/performance.html"><span class="mono micro">NEXT</span> Performance, memory and limits →</a>
+  <a href="/quickstart.html"><span class="mono micro">START</span> Install guide →</a>
+</div>
+{% endblock %}

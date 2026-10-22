@@ -74,7 +74,7 @@ def test_memory_manager():
 
 @test("Import core.batch_queue")
 def test_batch_queue():
-    from core.batch_queue import BatchQueue, TTSJob, JobStatus
+    from core.batch_queue import BatchQueue, BatchJob, JobStatus
     queue = BatchQueue()
     job_id = queue.add_job("Test text")
     assert job_id is not None

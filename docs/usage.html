@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0e12">
+  <title>CLI reference and studio guide — VoiceSynth Studio</title>
+  <meta name="description" content="Every command-line flag, generated from main.py, plus the PyQt6 studio workflow for synthesis, cloning, profiles and batch jobs.">
+  <meta name="author" content="FiredMosquito831">
+  <link rel="canonical" href="https://tts.danubelabs.net/usage.html">
+<meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VoiceSynth Studio">
+  <meta property="og:title" content="CLI reference and studio guide — VoiceSynth Studio">
+  <meta property="og:description" content="Every command-line flag, generated from main.py, plus the PyQt6 studio workflow for synthesis, cloning, profiles and batch jobs.">
+  <meta property="og:url" content="https://tts.danubelabs.net/usage.html">
+  <meta property="og:image" content="https://tts.danubelabs.net/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VoiceSynth Studio — local text-to-speech workstation">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CLI reference and studio guide — VoiceSynth Studio">
+  <meta name="twitter:description" content="Every command-line flag, generated from main.py, plus the PyQt6 studio workflow for synthesis, cloning, profiles and batch jobs.">
+  <meta name="twitter:image" content="https://tts.danubelabs.net/og.png">
+
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "VoiceSynth Studio",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Text-to-speech synthesis",
+  "operatingSystem": "Windows, Linux, macOS",
+  "softwareVersion": "0.1.1",
+  "description": "A local-first text-to-speech workstation with a unified backend layer, voice cloning, batch synthesis and a PyQt6 studio interface.",
+  "url": "https://tts.danubelabs.net/usage.html",
+  "downloadUrl": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "codeRepository": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "license": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Local text-to-speech synthesis",
+    "F5-TTS, GPT-SoVITS and Fish Speech backend integrations",
+    "Zero-shot voice cloning from reference audio",
+    "Batch synthesis queue",
+    "PyQt6 studio interface and command-line mode"
+  ],
+  "mainEntityOfPage": "https://tts.danubelabs.net/usage.html"
+}
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="signal-bar" aria-hidden="true">
+  <span>LOCAL-FIRST AUDIO</span>
+  <span class="signal-dots"><i></i><i></i><i></i><i></i><i></i></span>
+  <span>NO TELEMETRY</span>
+</div>
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="VoiceSynth Studio home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" role="img" focusable="false">
+        <rect x="1" y="12" width="2.4" height="8" rx="1.2"/>
+        <rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+        <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/>
+        <rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+        <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/>
+        <rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+        <rect x="30" y="13.5" width="1.4" height="5" rx="0.7"/>
+      </svg>
+    </span>
+    <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+    <span class="brand-version">v0.1.1</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Primary">
+    <a href="/" >Overview</a>
+    <a href="/quickstart.html" >Install</a>
+    <a href="/usage.html" aria-current="page">CLI &amp; GUI</a>
+    <a href="/backends.html" >Backends</a>
+    <a href="/performance.html" >Limits</a>
+    <a href="/faq.html" >FAQ</a>
+    <a href="/about.html" >About</a>
+  </nav>
+
+  <a class="header-cta" href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+</header>
+
+<main id="main">
+<section class="page-hero">
+  <p class="eyebrow">Interface reference</p>
+  <h1>CLI flags, studio panels, Python API.</h1>
+  <p class="lede">
+    The command-line table below is generated from the live <code>argparse</code>
+    definition in <code>main.py</code> during the site build. If a flag is not in
+    that table, it does not exist.
+  </p>
+</section>
+
+<section class="section doc-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="mono micro">ON THIS PAGE</p>
+    <a href="#cli">CLI reference</a>
+    <a href="#examples">Examples</a>
+    <a href="#behaviour">CLI behaviour</a>
+    <a href="#studio">Studio guide</a>
+    <a href="#profiles">Profiles &amp; cloning</a>
+    <a href="#batch">Batch queue</a>
+    <a href="#python">Python API</a>
+    <a href="#modules">Support modules</a>
+  </aside>
+
+  <div class="doc-body">
+    <section id="cli" class="doc-section">
+      <h2>CLI reference</h2>
+      <p>Invocation: <code class="mono">python main.py [options]</code></p>
+
+      <h3 class="group-title">General</h3>
+      <div class="table-wrap">
+        <table class="matrix cli-table">
+          <thead>
+            <tr><th scope="col">Flag</th><th scope="col">Value</th><th scope="col">Default</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row"><code>--cli</code></th>
+              <td>
+<span class="mono muted">—</span>
+              </td>
+              <td class="mono">
+<span class="muted">not set</span>
+              </td>
+              <td>Run in CLI mode instead of GUI</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>--version</code></th>
+              <td>
+<span class="mono muted">—</span>
+              </td>
+              <td class="mono">
+<span class="muted">not set</span>
+              </td>
+              <td>Show program&#39;s version number and exit</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="group-title">CLI Options</h3>
+      <div class="table-wrap">
+        <table class="matrix cli-table">
+          <thead>
+            <tr><th scope="col">Flag</th><th scope="col">Value</th><th scope="col">Default</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row"><code>--text, -t</code></th>
+              <td>
+<code>str</code>
+              </td>
+              <td class="mono">
+<span class="muted">not set</span>
+              </td>
+              <td>Text to synthesize</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>--file, -f</code></th>
+              <td>
+<code>Path</code>
+              </td>
+              <td class="mono">
+<span class="muted">not set</span>
+              </td>
+              <td>Text file to synthesize</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>--voice, -v</code></th>
+              <td>
+<code>str</code>
+              </td>
+              <td class="mono">
+<span class="muted">not set</span>
+              </td>
+              <td>Voice profile to use (name or path to reference audio)</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>--output, -o</code></th>
+              <td>
+<code>Path</code>
+              </td>
+              <td class="mono">
+output.wav              </td>
+              <td>Output audio file path (default: output.wav)</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>--backend, -b</code></th>
+              <td>
+<code>{f5-tts,gpt-sovits,fish-speech}</code>
+              </td>
+              <td class="mono">
+f5-tts              </td>
+              <td>TTS backend to use (default: f5-tts)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="group-title">Performance Options</h3>
+      <div class="table-wrap">
+        <table class="matrix cli-table">
+          <thead>
+            <tr><th scope="col">Flag</th><th scope="col">Value</th><th scope="col">Default</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row"><code>--quantization, -q</code></th>
+              <td>
+<code>{fp16,int8,int4,gguf-q4,gguf-q8}</code>
+              </td>
+              <td class="mono">
+int8              </td>
+              <td>Quantization level (default: int8)</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>--device</code></th>
+              <td>
+<code>{cuda,cpu,auto}</code>
+              </td>
+              <td class="mono">
+auto              </td>
+              <td>Device to use (default: auto)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>Backend choices are model backends, not runtime targets.</strong>
+        <code>--backend</code> accepts <code>f5-tts</code>, <code>gpt-sovits</code> and
+        <code>fish-speech</code>. The ONNX / OpenVINO / TensorRT / DirectML /
+        llama.cpp / vLLM classes live in the registry used by the GUI and auto-selector;
+        their synthesis methods are not implemented.
+      </div>
+    </section>
+
+    <section id="examples" class="doc-section">
+      <h2>Examples</h2>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">synthesize</span></div>
+        <pre><code># Short text
+python main.py --cli --text "Hello from the studio." --output hello.wav
+
+# From a UTF-8 text file
+python main.py --cli --file input.txt --output output.wav
+
+# Reference audio for zero-shot cloning
+python main.py --cli --text "Hello" \
+  --voice reference.wav --backend f5-tts --output cloned.wav
+
+# Force CPU and FP16
+python main.py --cli --text "Hello" --device cpu --quantization fp16</code></pre>
+      </div>
+      <p class="fineprint">
+        <code>--voice</code> accepts a path to a reference audio file
+        (WAV/MP3/FLAC/OGG/M4A) or the name/ID of a saved speaker profile. Profiles
+        are stored in <code>~/.config/voicesynth/profiles.db</code>.
+      </p>
+    </section>
+
+    <section id="behaviour" class="doc-section">
+      <h2>CLI behaviour worth knowing</h2>
+      <ul class="check-list">
+        <li><strong>Output sample rate follows the backend.</strong> The CLI now saves the sample rate returned by synthesis instead of assuming 24 kHz, so GPT-SoVITS (32 kHz) is written correctly.</li>
+        <li><strong>No input is an error.</strong> Pass <code>--text</code> or <code>--file</code>; the process exits non-zero otherwise.</li>
+        <li><strong>Model loading is lazy.</strong> The manager loads the backend on the first <code>synthesize()</code> call.</li>
+        <li><strong>Quantization is accepted, not guaranteed.</strong> The CLI exposes five levels, but the F5-TTS backend effectively implements FP16 and INT8. On CUDA, INT8 falls back to FP16 with a log line; CPU can apply dynamic INT8. INT4/GGUF flags do not magically quantize an F5 checkpoint.</li>
+        <li><strong>Language is a hint.</strong> <code>auto</code> uses a character heuristic: Romanian diacritics → <code>ro</code>, CJK → <code>zh</code>, otherwise <code>en</code>.</li>
+      </ul>
+    </section>
+
+    <section id="studio" class="doc-section">
+      <h2>Studio guide</h2>
+      <p>Launch with <code>python main.py</code>. The main window is a tabbed workspace with a GPU monitor on the right.</p>
+      <div class="ui-list">
+        <article><span class="mono idx">01</span><div><h3>Text-to-Speech</h3><p>Write or paste text. Choose voice, language (EN/RO/ZH/auto), backend, adapter, NFE steps (4–64), sampler (Euler/Midpoint/RK4), speed (0.5–2.0×), seed and chunking mode. Generate, inspect the waveform, play the result and export WAV.</p></div></article>
+        <article><span class="mono idx">02</span><div><h3>Voice Cloning</h3><p>Drop a reference clip, transcribe it with faster-whisper if installed, review/edit the transcript, then save a profile. The profile can be selected anywhere a voice is requested.</p></div></article>
+        <article><span class="mono idx">03</span><div><h3>Backends</h3><p>Shows the registry entries and install hints. The panel exposes options for ONNX providers, llama.cpp context/GPU layers, OpenVINO devices and DirectML device IDs; these configure loaders, not missing synthesis code.</p></div></article>
+        <article><span class="mono idx">04</span><div><h3>Quantization</h3><p>Lists supported methods and memory estimates. The bitsandbytes path is implemented; GGUF/GPTQ/AWQ conversion controls are placeholders and the UI warns about that.</p></div></article>
+        <article><span class="mono idx">05</span><div><h3>Presets</h3><p>Four built-in VRAM presets (Ultra Low, Low, Balanced, Quality) plus custom presets persisted as JSON. Presets are configuration templates; they do not benchmark your machine.</p></div></article>
+        <article><span class="mono idx">06</span><div><h3>Batch</h3><p>Paste one job per line, choose priority, voice and adapter. The queue runs jobs through the same inference manager with pause, resume, cancel and per-job status.</p></div></article>
+        <article><span class="mono idx">07</span><div><h3>Monitor</h3><p>VRAM, utilization, temperature and memory-manager statistics. Without NVML the widget degrades to a “not available” state instead of crashing.</p></div></article>
+      </div>
+    </section>
+
+    <section id="profiles" class="doc-section">
+      <h2>Profiles &amp; cloning</h2>
+      <p>
+        A <code>SpeakerProfile</code> stores a name, tags, description, reference
+        samples (path, transcript, duration), a quality score and optional
+        embedding data. Profiles can be exported/imported as human-readable
+        <code>.vsp</code> JSON files.
+      </p>
+      <p>
+        Sample quality is scored locally from duration, RMS energy, clipping and
+        silence ratio. The voice-fusion module can blend multiple spectral
+        embeddings (average, quality-weighted, duration-weighted), but the
+        GPT-SoVITS and Fish branches currently reuse a generic mel-statistics
+        embedding rather than their native encoders.
+      </p>
+    </section>
+
+    <section id="batch" class="doc-section">
+      <h2>Batch queue</h2>
+      <p>The queue is a priority worker thread. Jobs carry text, voice, adapter, optional reference audio and output path. Callbacks fire on start, progress, completion and error.</p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">python</span></div>
+        <pre><code>from core.batch_queue import BatchQueue, JobPriority
+
+queue = BatchQueue(inference_manager=manager)
+queue.add_batch(
+    texts=["First line.", "Second line."],
+    voice="reference.wav",
+    output_dir="out",
+    priority=JobPriority.NORMAL,
+)
+queue.start()</code></pre>
+      </div>
+    </section>
+
+    <section id="python" class="doc-section">
+      <h2>Python API</h2>
+      <p>The orchestrator is small enough to embed directly.</p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">python</span></div>
+        <pre><code>from core.inference_manager import InferenceManager
+
+manager = InferenceManager(backend="f5-tts", quantization="int8", device="auto")
+audio, sample_rate = manager.synthesize(
+    text="The tape is rolling.",
+    voice="reference.wav",   # optional path or profile name
+    nfe_steps=16,
+    speed=1.0,
+    language="en",
+)
+manager.save_audio(audio, "out.wav", sample_rate)
+manager.unload_model()</code></pre>
+      </div>
+      <p class="fineprint">
+        <code>synthesize()</code> returns <code>(numpy.ndarray, sample_rate)</code>.
+        The CLI used to discard the second element — fixed in this revamp.
+      </p>
+    </section>
+
+    <section id="modules" class="doc-section">
+      <h2>Support modules</h2>
+      <div class="table-wrap">
+        <table class="matrix">
+          <thead><tr><th scope="col">Module</th><th scope="col">What it does</th><th scope="col">Wired into CLI?</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>core.chunking</code></th><td>Sentence/character/token/paragraph chunking and crossfaded audio stitching, plus <code>LongTextSynthesizer</code>.</td><td class="mono">No — library/UI-level</td></tr>
+            <tr><th scope="row"><code>core.memory_manager</code></th><td>LRU model registry, VRAM budget, eviction callbacks and CPU offload helpers.</td><td class="mono">Monitor only</td></tr>
+            <tr><th scope="row"><code>core.profile_database</code></th><td>SQLite profiles, quality scoring and <code>.vsp</code> exchange.</td><td class="mono">Voice resolution</td></tr>
+            <tr><th scope="row"><code>core.voice_fusion</code></th><td>Spectral embedding extraction and fusion strategies.</td><td class="mono">No</td></tr>
+            <tr><th scope="row"><code>core.quantization</code></th><td>Method catalogue, memory estimates, bitsandbytes helper; GGUF/GPTQ/AWQ conversion is a placeholder.</td><td class="mono">No — GUI panel</td></tr>
+            <tr><th scope="row"><code>core.presets</code></th><td>Built-in and custom VRAM presets persisted as JSON.</td><td class="mono">No — GUI panel</td></tr>
+            <tr><th scope="row"><code>core.backend_registry</code></th><td>Registration, availability checks and a VRAM-based auto-selector.</td><td class="mono">No — GUI</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="next-links">
+      <a href="/backends.html"><span class="mono micro">NEXT</span> Backend matrix →</a>
+      <a href="/performance.html"><span class="mono micro">REFERENCE</span> Performance &amp; limits →</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="brand footer-logo">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false">
+            <rect x="1" y="12" width="2.4" height="8" rx="1.2"/><rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+            <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/><rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+            <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/><rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+          </svg>
+        </span>
+        <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+      </div>
+      <p>Local text-to-speech, without the cloud.</p>
+      <p class="mono micro">MIT licensed · local inference · open source</p>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Build</h2>
+      <a href="/quickstart.html">Install</a>
+      <a href="/usage.html">CLI reference</a>
+      <a href="/backends.html">Backend matrix</a>
+      <a href="/performance.html">Limits</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Project</h2>
+      <a href="/faq.html">FAQ</a>
+      <a href="/about.html">Security</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CHANGELOG.md" rel="noopener">Changelog</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/issues" rel="noopener">Issues</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Source</h2>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">GitHub</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE" rel="noopener">License</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CONTRIBUTING.md" rel="noopener">Contributing</a>
+      <a href="https://tts.danubelabs.net/sitemap.xml">Sitemap</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="mono micro">TEXT → CHUNK → MODEL → WAV</span>
+    <span class="mono micro">Built for machines you own. © 2026 VoiceSynth</span>
+  </div>
+</footer>
+</body>
+</html>
