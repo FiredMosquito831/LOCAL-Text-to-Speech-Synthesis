@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0e12">
+  <title>FAQ — VoiceSynth Studio</title>
+  <meta name="description" content="Answers about model weights, backends, audio quality, GPU support, voice cloning and why some accelerators are interfaces only.">
+  <meta name="author" content="FiredMosquito831">
+  <link rel="canonical" href="https://tts.danubelabs.net/faq.html">
+<meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VoiceSynth Studio">
+  <meta property="og:title" content="FAQ — VoiceSynth Studio">
+  <meta property="og:description" content="Answers about model weights, backends, audio quality, GPU support, voice cloning and why some accelerators are interfaces only.">
+  <meta property="og:url" content="https://tts.danubelabs.net/faq.html">
+  <meta property="og:image" content="https://tts.danubelabs.net/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VoiceSynth Studio — local text-to-speech workstation">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FAQ — VoiceSynth Studio">
+  <meta name="twitter:description" content="Answers about model weights, backends, audio quality, GPU support, voice cloning and why some accelerators are interfaces only.">
+  <meta name="twitter:image" content="https://tts.danubelabs.net/og.png">
+
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "VoiceSynth Studio",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Text-to-speech synthesis",
+  "operatingSystem": "Windows, Linux, macOS",
+  "softwareVersion": "0.1.1",
+  "description": "A local-first text-to-speech workstation with a unified backend layer, voice cloning, batch synthesis and a PyQt6 studio interface.",
+  "url": "https://tts.danubelabs.net/faq.html",
+  "downloadUrl": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "codeRepository": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "license": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Local text-to-speech synthesis",
+    "F5-TTS, GPT-SoVITS and Fish Speech backend integrations",
+    "Zero-shot voice cloning from reference audio",
+    "Batch synthesis queue",
+    "PyQt6 studio interface and command-line mode"
+  ],
+  "mainEntityOfPage": "https://tts.danubelabs.net/faq.html"
+}
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="signal-bar" aria-hidden="true">
+  <span>LOCAL-FIRST AUDIO</span>
+  <span class="signal-dots"><i></i><i></i><i></i><i></i><i></i></span>
+  <span>NO TELEMETRY</span>
+</div>
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="VoiceSynth Studio home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" role="img" focusable="false">
+        <rect x="1" y="12" width="2.4" height="8" rx="1.2"/>
+        <rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+        <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/>
+        <rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+        <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/>
+        <rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+        <rect x="30" y="13.5" width="1.4" height="5" rx="0.7"/>
+      </svg>
+    </span>
+    <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+    <span class="brand-version">v0.1.1</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Primary">
+    <a href="/" >Overview</a>
+    <a href="/quickstart.html" >Install</a>
+    <a href="/usage.html" >CLI &amp; GUI</a>
+    <a href="/backends.html" >Backends</a>
+    <a href="/performance.html" >Limits</a>
+    <a href="/faq.html" aria-current="page">FAQ</a>
+    <a href="/about.html" >About</a>
+  </nav>
+
+  <a class="header-cta" href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+</header>
+
+<main id="main">
+<section class="page-hero">
+  <p class="eyebrow">FAQ</p>
+  <h1>The questions the README used to dodge.</h1>
+  <p class="lede">
+    Short answers, grounded in the current source tree. If an answer says
+    “not implemented”, that is a deliberate statement about this revision.
+  </p>
+</section>
+
+<section class="section faq-section">
+  <dl class="faq-list large">
+    <dt>Is this really local? Does it phone home?</dt>
+    <dd>The application has no analytics, telemetry or cloud TTS client. Text, reference audio and generated WAVs stay on disk. The one network dependency is the Hugging Face download of model weights (F5-TTS checks and weights, plus any upstream vocoder assets) on first use. After those are cached, synthesis does not require a network.</dd>
+
+    <dt>Which backend actually works?</dt>
+    <dd>F5-TTS is the complete path and the default. GPT-SoVITS has a real integration when its external package and weights are installed. Fish Speech is a scaffold that returns a placeholder tone; the ONNX, OpenVINO, TensorRT, DirectML, llama.cpp and vLLM classes are interfaces only.</dd>
+
+    <dt>Why are there 9 backends if only one works?</dt>
+    <dd>Because the repository contains a real backend abstraction and registry intended to grow. The site and README label implementation status instead of listing all nine as usable. That distinction is the point of the revamp.</dd>
+
+    <dt>Can I clone a voice?</dt>
+    <dd>Yes on F5-TTS: pass a reference clip with <code>--voice</code> or save a profile in the studio. Quality depends on the reference (clean speech, low noise, a few seconds to ~30 seconds) and the model. GPT-SoVITS follows its upstream reference workflow when installed.</dd>
+
+    <dt>Do I need a GPU?</dt>
+    <dd>No. The device resolver falls back to CPU. CPU inference is slower; the code contains no measured CPU latency figures. CUDA is used automatically when available.</dd>
+
+    <dt>How much VRAM do I need?</dt>
+    <dd>The declared capability floors are 1.5 GB for F5-TTS, 2 GB for GPT-SoVITS and 2 GB for Fish Speech. The studio ships presets targeting 3–6 GB. These are configuration targets from the source, not measured peak usage.</dd>
+
+    <dt>What do the quantization flags do?</dt>
+    <dd>FP16 works. INT8 applies dynamic quantization on CPU; on CUDA it logs a message and uses FP16. INT4 and GGUF are accepted by the CLI but not applied to F5-TTS. The GGUF/GPTQ/AWQ conversion routines are placeholders.</dd>
+
+    <dt>Why does my output sound like a beep?</dt>
+    <dd>You are on a stub path. GPT-SoVITS without its package returns a 220 Hz tone; Fish Speech returns a 330 Hz tone. Check the log for “placeholder audio”. This is deliberate graceful degradation in the current code, and a known limitation.</dd>
+
+    <dt>Is long text supported?</dt>
+    <dd>There is a chunking and crossfade-stitching module, and the studio exposes chunk modes. The CLI does not automatically wrap input in <code>LongTextSynthesizer</code>, so very long CLI input goes to the backend as-is. For now, split long scripts yourself or use the studio.</dd>
+
+    <dt>Does it support Romanian / Chinese / other languages?</dt>
+    <dd>The UI exposes English, Romanian, Chinese and auto-detect. Auto-detect is a character heuristic (Romanian diacritics, CJK, else English). Actual language quality is a property of the model weights and upstream packages, not of this orchestration layer.</dd>
+
+    <dt>Why does the backends panel recommend TensorRT if synthesis is not implemented?</dt>
+    <dd>The auto-selector scores capability metadata, including speed multipliers declared by scaffold classes. It can therefore recommend a target that cannot yet synthesize. Treat the recommendation as a hint, and use <code>--backend f5-tts</code> for audio today.</dd>
+
+    <dt>What Python version should I use?</dt>
+    <dd>3.10–3.12. The pinned torch 2.5.1 wheels do not support Python 3.13, even though the old README claimed 3.8+. <code>requirements_ultimate.txt</code> is a Windows/CUDA 12.1 lockfile; Linux users need matching torch builds.</dd>
+
+    <dt>Can I use this commercially?</dt>
+    <dd>The repository is MIT licensed. Model weights and third-party packages have their own licenses — F5-TTS, GPT-SoVITS and Fish Speech are separate projects. Check those before commercial use, and check the license of any voice you clone.</dd>
+
+    <dt>How do I contribute?</dt>
+    <dd>See <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CONTRIBUTING.md">CONTRIBUTING.md</a>. The most useful contributions right now are real synthesis paths for the runtime scaffolds, benchmark harnesses with reproducible hardware, and tests that do not require model downloads.</dd>
+  </dl>
+</section>
+
+<div class="section next-links">
+  <a href="/about.html"><span class="mono micro">NEXT</span> About &amp; security →</a>
+  <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/issues"><span class="mono micro">OPEN</span> Ask or report an issue →</a>
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="brand footer-logo">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false">
+            <rect x="1" y="12" width="2.4" height="8" rx="1.2"/><rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+            <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/><rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+            <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/><rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+          </svg>
+        </span>
+        <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+      </div>
+      <p>Local text-to-speech, without the cloud.</p>
+      <p class="mono micro">MIT licensed · local inference · open source</p>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Build</h2>
+      <a href="/quickstart.html">Install</a>
+      <a href="/usage.html">CLI reference</a>
+      <a href="/backends.html">Backend matrix</a>
+      <a href="/performance.html">Limits</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Project</h2>
+      <a href="/faq.html">FAQ</a>
+      <a href="/about.html">Security</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CHANGELOG.md" rel="noopener">Changelog</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/issues" rel="noopener">Issues</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Source</h2>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">GitHub</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE" rel="noopener">License</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CONTRIBUTING.md" rel="noopener">Contributing</a>
+      <a href="https://tts.danubelabs.net/sitemap.xml">Sitemap</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="mono micro">TEXT → CHUNK → MODEL → WAV</span>
+    <span class="mono micro">Built for machines you own. © 2026 VoiceSynth</span>
+  </div>
+</footer>
+</body>
+</html>

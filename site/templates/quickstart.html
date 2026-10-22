@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="page-hero">
+  <p class="eyebrow">Quickstart</p>
+  <h1>From clone to first WAV.</h1>
+  <p class="lede">
+    VoiceSynth Studio runs the model locally, but the models are not vendored in
+    this repository. Plan for a Python environment, network access for the first
+    weight download, and a few gigabytes of disk.
+  </p>
+</section>
+
+<section class="section doc-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="mono micro">ON THIS PAGE</p>
+    <a href="#requirements">Requirements</a>
+    <a href="#install">1 · Install</a>
+    <a href="#models">2 · Model weights</a>
+    <a href="#first-run">3 · First synthesis</a>
+    <a href="#studio">4 · Open the studio</a>
+    <a href="#optional">Optional backends</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </aside>
+
+  <div class="doc-body">
+    <section id="requirements" class="doc-section">
+      <h2>Requirements</h2>
+      <div class="table-wrap">
+        <table class="matrix">
+          <tbody>
+            <tr><th scope="row">Python</th><td>3.10–3.12. The pinned torch/torchaudio wheels in <code>requirements_ultimate.txt</code> do not cover 3.13.</td></tr>
+            <tr><th scope="row">OS</th><td>Windows is the primary tested path. Linux works for the Python core; the <code>.bat</code> helpers are Windows-only.</td></tr>
+            <tr><th scope="row">GPU</th><td>Optional. CUDA is used when <code>torch.cuda.is_available()</code>; otherwise the manager resolves to CPU. The declared F5-TTS VRAM floor is 1.5 GB.</td></tr>
+            <tr><th scope="row">Disk</th><td>Room for a Python environment plus model weight caches. The F5-TTS checkpoint alone is a multi-gigabyte download.</td></tr>
+            <tr><th scope="row">Network</th><td>Required once to download weights. Inference itself does not call a cloud TTS service.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-warn">
+        <strong>About the lockfile.</strong>
+        <code>requirements_ultimate.txt</code> pins a Windows/CUDA 12.1 stack, including a
+        Windows-only bitsandbytes wheel and <code>torch==2.5.1+cu121</code>. On Linux,
+        install the matching torch/torchaudio build from pytorch.org first, then
+        install the remaining packages. It is a full research environment, not a
+        minimal runtime.
+      </div>
+    </section>
+
+    <section id="install" class="doc-section">
+      <h2>1 · Install</h2>
+      <p>Clone the repository and create an isolated environment.</p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">terminal</span></div>
+        <pre><code>git clone {{ repo_url }}.git
+cd LOCAL-Text-to-Speech-Synthesis
+
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux / macOS
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r requirements_ultimate.txt</code></pre>
+      </div>
+      <p>
+        The requirements file installs F5-TTS from its upstream Git revision and
+        includes PyQt6, faster-whisper, ONNX Runtime, OpenVINO and the other
+        optional libraries used by the studio panels.
+      </p>
+      <div class="callout">
+        <strong>Verify the Python core without loading a model.</strong>
+        <code>python test_all.py</code> imports every module and exercises the
+        model-free services. It does not download weights.
+      </div>
+    </section>
+
+    <section id="models" class="doc-section">
+      <h2>2 · Model weights</h2>
+      <p>
+        F5-TTS is the default backend. Its <code>load()</code> path downloads the
+        <code>F5TTS_v1_Base</code> checkpoint with <code>huggingface_hub</code> and
+        then loads the vocoder. The first synthesis will therefore be slower and
+        requires network access.
+      </p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">optional · prefetch</span></div>
+        <pre><code># Downloads GPT-SoVITS v2 weights and attempts the Romanian F5 adapter.
+# F5-TTS weights are fetched automatically by the F5 backend on first use.
+python scripts/setup_weights.py</code></pre>
+      </div>
+      <p class="fineprint">
+        <code>scripts/setup_weights.py</code> expects a GPT-SoVITS checkout at
+        <code>./GPT-SoVITS</code>. The Fish Speech branch only prints download
+        instructions; it does not fetch weights.
+      </p>
+    </section>
+
+    <section id="first-run" class="doc-section">
+      <h2>3 · First synthesis</h2>
+      <p>Use the CLI with the default backend and an explicit output path.</p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">terminal</span></div>
+        <pre><code>python main.py --cli --text "The tape is rolling." --output hello.wav</code></pre>
+      </div>
+      <p>Or synthesize a whole text file:</p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">terminal</span></div>
+        <pre><code>python main.py --cli --file script.txt --output script.wav
+python main.py --version</code></pre>
+      </div>
+      <p>
+        The CLI prints the resolved backend, quantization and text length, then
+        writes WAV audio at the backend's own sample rate (24 kHz for F5-TTS).
+      </p>
+    </section>
+
+    <section id="studio" class="doc-section">
+      <h2>4 · Open the studio</h2>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">terminal</span></div>
+        <pre><code>python main.py</code></pre>
+      </div>
+      <p>
+        PyQt6 opens the studio with TTS, voice cloning, backend configuration,
+        quantization, presets, batch processing and a GPU monitor. If PyQt6 is not
+        installed, the entry point exits with the install hint rather than
+        silently falling back.
+      </p>
+    </section>
+
+    <section id="optional" class="doc-section">
+      <h2>Optional backends</h2>
+      <p>
+        The model integrations import third-party repositories that are
+        gitignored in this project. Clone them next to <code>main.py</code> if you
+        need them:
+      </p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">GPT-SoVITS</span></div>
+        <pre><code>git clone https://github.com/RVC-Boss/GPT-SoVITS.git --depth 1
+python scripts/setup_weights.py
+python main.py --cli --backend gpt-sovits --text "Test" --output gpt.wav</code></pre>
+      </div>
+      <div class="callout callout-warn">
+        <strong>Fish Speech is a scaffold.</strong>
+        The backend's inference engine is not wired up in this revision. It falls
+        back to a 330 Hz placeholder tone. Do not evaluate the project on Fish
+        Speech output yet.
+      </div>
+    </section>
+
+    <section id="troubleshooting" class="doc-section">
+      <h2>Troubleshooting</h2>
+      <dl class="faq-list">
+        <dt>“F5-TTS not properly installed”</dt>
+        <dd>The <code>f5_tts</code> package is missing. Install it from the pinned Git URL in the requirements file, or clone F5-TTS and run <code>pip install -e ./F5-TTS</code>.</dd>
+        <dt>PyQt6 import error</dt>
+        <dd>Install PyQt6 in the active environment: <code>pip install PyQt6==6.10.2</code> (the pinned version).</dd>
+        <dt>The first run hangs while “Downloading model weights…”</dt>
+        <dd>That is the Hugging Face download. Check the connection and the cache at <code>~/.cache/huggingface/hub</code>.</dd>
+        <dt>GPU out of memory</dt>
+        <dd>Choose a lower NFE count, select a 24 kHz model that fits, or run on CPU. The repo does not ship a magic 6 GB guarantee; the memory manager and presets are targets, not measured envelopes.</dd>
+        <dt>No audio in <code>hello.wav</code> / a beep instead of speech</dt>
+        <dd>You are probably on GPT-SoVITS without the package or Fish Speech (scaffold). The code returns placeholder tones in those cases; check the log warning.</dd>
+      </dl>
+    </section>
+
+    <div class="next-links">
+      <a href="/usage.html"><span class="mono micro">NEXT</span> CLI reference &amp; studio guide →</a>
+      <a href="/backends.html"><span class="mono micro">REFERENCE</span> Backend capability matrix →</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

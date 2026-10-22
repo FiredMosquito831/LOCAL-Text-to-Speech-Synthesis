@@ -1,0 +1,6 @@
+# Development and verification dependencies (no model downloads required).
+-r requirements-site.txt
+numpy==1.26.4
+soundfile==0.13.1
+pytest==9.0.2
+playwright==1.64.1

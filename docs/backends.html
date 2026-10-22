@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0e12">
+  <title>Backends and capability matrix — VoiceSynth Studio</title>
+  <meta name="description" content="Model backends and runtime targets with the real implementation status, VRAM floors, precision support and platform notes read from the source.">
+  <meta name="author" content="FiredMosquito831">
+  <link rel="canonical" href="https://tts.danubelabs.net/backends.html">
+<meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VoiceSynth Studio">
+  <meta property="og:title" content="Backends and capability matrix — VoiceSynth Studio">
+  <meta property="og:description" content="Model backends and runtime targets with the real implementation status, VRAM floors, precision support and platform notes read from the source.">
+  <meta property="og:url" content="https://tts.danubelabs.net/backends.html">
+  <meta property="og:image" content="https://tts.danubelabs.net/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VoiceSynth Studio — local text-to-speech workstation">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Backends and capability matrix — VoiceSynth Studio">
+  <meta name="twitter:description" content="Model backends and runtime targets with the real implementation status, VRAM floors, precision support and platform notes read from the source.">
+  <meta name="twitter:image" content="https://tts.danubelabs.net/og.png">
+
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "VoiceSynth Studio",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Text-to-speech synthesis",
+  "operatingSystem": "Windows, Linux, macOS",
+  "softwareVersion": "0.1.1",
+  "description": "A local-first text-to-speech workstation with a unified backend layer, voice cloning, batch synthesis and a PyQt6 studio interface.",
+  "url": "https://tts.danubelabs.net/backends.html",
+  "downloadUrl": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "codeRepository": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "license": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Local text-to-speech synthesis",
+    "F5-TTS, GPT-SoVITS and Fish Speech backend integrations",
+    "Zero-shot voice cloning from reference audio",
+    "Batch synthesis queue",
+    "PyQt6 studio interface and command-line mode"
+  ],
+  "mainEntityOfPage": "https://tts.danubelabs.net/backends.html"
+}
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="signal-bar" aria-hidden="true">
+  <span>LOCAL-FIRST AUDIO</span>
+  <span class="signal-dots"><i></i><i></i><i></i><i></i><i></i></span>
+  <span>NO TELEMETRY</span>
+</div>
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="VoiceSynth Studio home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" role="img" focusable="false">
+        <rect x="1" y="12" width="2.4" height="8" rx="1.2"/>
+        <rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+        <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/>
+        <rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+        <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/>
+        <rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+        <rect x="30" y="13.5" width="1.4" height="5" rx="0.7"/>
+      </svg>
+    </span>
+    <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+    <span class="brand-version">v0.1.1</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Primary">
+    <a href="/" >Overview</a>
+    <a href="/quickstart.html" >Install</a>
+    <a href="/usage.html" >CLI &amp; GUI</a>
+    <a href="/backends.html" aria-current="page">Backends</a>
+    <a href="/performance.html" >Limits</a>
+    <a href="/faq.html" >FAQ</a>
+    <a href="/about.html" >About</a>
+  </nav>
+
+  <a class="header-cta" href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+</header>
+
+<main id="main">
+<section class="page-hero">
+  <p class="eyebrow">Backend matrix</p>
+  <h1>What runs, what loads, what is only an interface.</h1>
+  <p class="lede">
+    This page is generated from <code>CAPABILITIES</code> blocks and
+    <code>BackendRegistry</code> calls in the repository. Status labels are
+    derived from whether <code>synthesize()</code> raises
+    <code>NotImplementedError</code>, not from a feature wishlist.
+  </p>
+</section>
+
+<section class="section">
+  <div class="legend">
+    <span><span class="status status-ok">implemented</span> has a synthesis path</span>
+    <span><span class="status status-warn">scaffold</span> loads, but falls back to a placeholder tone</span>
+    <span><span class="status status-muted">interface</span> model/session loading only</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">Model backends</p>
+    <h2>The three synthesis families.</h2>
+  </div>
+  <div class="backend-detail-grid">
+    <article class="backend-detail">
+      <div class="card-top">
+        <span class="mono tag">pytorch</span>
+<span class="status status-ok">implemented</span>
+      </div>
+      <h3>F5-TTS (PyTorch)</h3>
+      <p class="mono classname">F5TTSBackend · core/backend_f5.py</p>
+
+      <div class="spec-grid">
+        <div><span class="mono micro">VRAM FLOOR</span><b>1.5 GB min</b></div>
+        <div><span class="mono micro">SAMPLE RATE</span><b>24000 Hz</b></div>
+        <div><span class="mono micro">PRECISION</span><b>fp32 · fp16 · int8</b></div>
+        <div><span class="mono micro">PLATFORMS</span><b>Windows · Linux</b></div>
+      </div>
+
+      <p>
+        The complete path. Uses upstream <code>f5_tts</code> for
+        <code>preprocess_ref_audio_text()</code> and <code>infer_process()</code>,
+        supports zero-shot reference audio, NFE steps, speed control and full
+        checkpoint adapters. Weights: <code>SWivid/F5-TTS</code>
+        (<code>F5TTS_v1_Base</code>).
+      </p>
+      <ul class="check-list compact">
+        <li>Default backend in both CLI and GUI.</li>
+        <li>INT8 on CUDA is converted to FP16; CPU can use dynamic INT8.</li>
+        <li>Without a reference clip, falls back to the F5 example reference shipped by the package.</li>
+      </ul>
+
+      <p class="fineprint">Declared speed multiplier: 1.0× · quality rating 5/5. These are capability metadata used by the auto-selector, not measured benchmarks.</p>
+    </article>
+    <article class="backend-detail">
+      <div class="card-top">
+        <span class="mono tag">fish-speech</span>
+<span class="status status-warn">scaffold</span>
+      </div>
+      <h3>Fish Speech</h3>
+      <p class="mono classname">FishSpeechBackend · core/backend_fish.py</p>
+
+      <div class="spec-grid">
+        <div><span class="mono micro">VRAM FLOOR</span><b>2 GB min</b></div>
+        <div><span class="mono micro">SAMPLE RATE</span><b>44100 Hz</b></div>
+        <div><span class="mono micro">PRECISION</span><b>fp32 · fp16 · int8 · int4</b></div>
+        <div><span class="mono micro">PLATFORMS</span><b>Windows · Linux</b></div>
+      </div>
+
+      <p>
+        Experimental integration. <code>load()</code> imports the Fish Speech
+        modules, but the inference engine is never assigned, and
+        <code>synthesize()</code> always reaches the placeholder-tone fallback in
+        this revision.
+      </p>
+      <ul class="check-list compact">
+        <li>Do not use for production or quality comparisons yet.</li>
+        <li>The files document the intended architecture (LLaMA semantic tokens + Firefly/DAC vocoder) but do not implement it.</li>
+        <li>vLLM acceleration is also not wired.</li>
+      </ul>
+
+      <p class="fineprint">Declared speed multiplier: 1.5× · quality rating 5/5. These are capability metadata used by the auto-selector, not measured benchmarks.</p>
+    </article>
+    <article class="backend-detail">
+      <div class="card-top">
+        <span class="mono tag">gpt-sovits</span>
+<span class="status status-ok">implemented</span>
+      </div>
+      <h3>GPT-SoVITS</h3>
+      <p class="mono classname">GPTSoVITSBackend · core/backend_gptsovits.py</p>
+
+      <div class="spec-grid">
+        <div><span class="mono micro">VRAM FLOOR</span><b>2 GB min</b></div>
+        <div><span class="mono micro">SAMPLE RATE</span><b>32000 Hz</b></div>
+        <div><span class="mono micro">PRECISION</span><b>fp32 · fp16 · int8</b></div>
+        <div><span class="mono micro">PLATFORMS</span><b>Windows · Linux</b></div>
+      </div>
+
+      <p>
+        Calls the external <code>GPT_SoVITS.TTS_infer_pack.TTS</code> API with v2
+        or v1 pretrained paths. It is a real integration, but the dependency and
+        weights live outside this repository.
+      </p>
+      <ul class="check-list compact">
+        <li>Requires a GPT-SoVITS checkout and pretrained weights.</li>
+        <li>If the import fails, <code>load()</code> stores a stub and synthesis returns a 220 Hz tone with a warning.</li>
+        <li>Language handling follows the upstream package; the CLI passes a hint, not a full language matrix.</li>
+      </ul>
+
+      <p class="fineprint">Declared speed multiplier: 1.2× · quality rating 5/5. These are capability metadata used by the auto-selector, not measured benchmarks.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Runtime targets</p>
+    <h2>Registered in the registry, status included.</h2>
+    <p class="section-lede">
+      These classes are registered with <code>BackendRegistry</code>. Several can
+      load a compiled model, ONNX session or GGUF file — none of them synthesize
+      audio in this release.
+    </p>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix wide">
+      <caption class="sr-only">Runtime backend capabilities</caption>
+      <thead>
+        <tr>
+          <th scope="col">Target</th><th scope="col">Type</th><th scope="col">Status</th>
+          <th scope="col">VRAM</th><th scope="col">Precision</th><th scope="col">Compile</th>
+          <th scope="col">Platforms</th><th scope="col">Synthesis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">DirectML<span class="row-sub mono">DirectMLBackend</span></th>
+          <td class="mono">runtime</td>
+          <td>
+<span class="status status-muted">interface</span>          </td>
+          <td class="mono">2 GB min</td>
+          <td class="mono">fp32, fp16</td>
+          <td class="mono">required</td>
+          <td class="mono">WIN</td>
+          <td class="mono">not implemented</td>
+        </tr>
+        <tr>
+          <th scope="row">F5-TTS (PyTorch)<span class="row-sub mono">F5TTSBackend</span></th>
+          <td class="mono">model</td>
+          <td>
+<span class="status status-ok">implemented</span>
+          </td>
+          <td class="mono">1.5 GB min</td>
+          <td class="mono">fp32, fp16, int8</td>
+          <td class="mono">no</td>
+          <td class="mono">WIN + LINUX</td>
+          <td class="mono">yes</td>
+        </tr>
+        <tr>
+          <th scope="row">Fish Speech<span class="row-sub mono">FishSpeechBackend</span></th>
+          <td class="mono">model</td>
+          <td>
+<span class="status status-warn">scaffold</span>
+          </td>
+          <td class="mono">2 GB min</td>
+          <td class="mono">fp32, fp16, int8, int4</td>
+          <td class="mono">no</td>
+          <td class="mono">WIN + LINUX</td>
+          <td class="mono">yes</td>
+        </tr>
+        <tr>
+          <th scope="row">GPT-SoVITS<span class="row-sub mono">GPTSoVITSBackend</span></th>
+          <td class="mono">model</td>
+          <td>
+<span class="status status-ok">implemented</span>
+          </td>
+          <td class="mono">2 GB min</td>
+          <td class="mono">fp32, fp16, int8</td>
+          <td class="mono">no</td>
+          <td class="mono">WIN + LINUX</td>
+          <td class="mono">yes</td>
+        </tr>
+        <tr>
+          <th scope="row">llama.cpp (GGUF)<span class="row-sub mono">LlamaCppBackend</span></th>
+          <td class="mono">runtime</td>
+          <td>
+<span class="status status-muted">interface</span>          </td>
+          <td class="mono">0.5 GB min</td>
+          <td class="mono">q2_k, q3_k_m, q4_k_m, q5_k_m, q8_0</td>
+          <td class="mono">no</td>
+          <td class="mono">WIN + LINUX</td>
+          <td class="mono">not implemented</td>
+        </tr>
+        <tr>
+          <th scope="row">ONNX Runtime<span class="row-sub mono">ONNXBackend</span></th>
+          <td class="mono">runtime</td>
+          <td>
+<span class="status status-muted">interface</span>          </td>
+          <td class="mono">CPU capable</td>
+          <td class="mono">fp32, fp16, int8</td>
+          <td class="mono">required</td>
+          <td class="mono">WIN + LINUX</td>
+          <td class="mono">not implemented</td>
+        </tr>
+        <tr>
+          <th scope="row">OpenVINO<span class="row-sub mono">OpenVINOBackend</span></th>
+          <td class="mono">runtime</td>
+          <td>
+<span class="status status-muted">interface</span>          </td>
+          <td class="mono">CPU capable</td>
+          <td class="mono">fp32, fp16, int8</td>
+          <td class="mono">required</td>
+          <td class="mono">WIN + LINUX</td>
+          <td class="mono">not implemented</td>
+        </tr>
+        <tr>
+          <th scope="row">TensorRT-LLM<span class="row-sub mono">TensorRTBackend</span></th>
+          <td class="mono">runtime</td>
+          <td>
+<span class="status status-muted">interface</span>          </td>
+          <td class="mono">2 GB min</td>
+          <td class="mono">fp16, int8, fp8</td>
+          <td class="mono">required</td>
+          <td class="mono">WIN + LINUX</td>
+          <td class="mono">not implemented</td>
+        </tr>
+        <tr>
+          <th scope="row">vLLM<span class="row-sub mono">VLLMBackend</span></th>
+          <td class="mono">runtime</td>
+          <td>
+<span class="status status-muted">interface</span>          </td>
+          <td class="mono">3 GB min</td>
+          <td class="mono">fp16, int8, int4-gptq, int4-awq</td>
+          <td class="mono">no</td>
+          <td class="mono">LINUX</td>
+          <td class="mono">not implemented</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="two-col">
+    <div>
+      <h2>How a backend is selected</h2>
+      <ol class="steps-list">
+        <li><span class="mono">01</span><div><strong>CLI</strong> uses the literal <code>--backend</code> value (default <code>f5-tts</code>).</div></li>
+        <li><span class="mono">02</span><div><strong>GUI</strong> switches the inference manager's backend from the TTS/Backend tabs.</div></li>
+        <li><span class="mono">03</span><div><strong>Auto-selector</strong> scores registered backends by VRAM, platform and declared quality/speed. It is available as <code>get_best_backend()</code> but the GUI does not force it.</div></li>
+        <li><span class="mono">04</span><div><strong>InferenceManager</strong> resolves <code>auto</code> to CUDA when torch reports it, otherwise CPU.</div></li>
+      </ol>
+    </div>
+    <div class="note-card">
+      <p class="mono micro">SELECTION CASCADE</p>
+      <div class="code-inline">
+        <code>--backend</code> → InferenceManager → backend class<br>
+        <code>--device auto</code> → CUDA if available → CPU<br>
+        <code>--quantization</code> → backend load → effective precision
+      </div>
+      <p class="fineprint">The auto-selector can recommend TensorRT or vLLM on capable hardware even though those synthesis paths are incomplete. Treat its recommendation as a capability hint, not a promise.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Precision</p>
+    <h2>What the flags really do.</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead><tr><th scope="col">CLI value</th><th scope="col">F5-TTS behaviour</th><th scope="col">Notes</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>fp16</code></th><td>Model runs in half precision.</td><td>The useful GPU default.</td></tr>
+        <tr><th scope="row"><code>int8</code></th><td>CUDA → FP16 with a log message; CPU → <code>torch.quantization.quantize_dynamic</code> on Linear layers.</td><td>CLI default. Not a true CUDA INT8 kernel.</td></tr>
+        <tr><th scope="row"><code>int4</code></th><td>Accepted by argparse; no F5-TTS quantization path.</td><td>Do not expect a VRAM reduction.</td></tr>
+        <tr><th scope="row"><code>gguf-q4</code> / <code>gguf-q8</code></th><td>Accepted by argparse; GGUF conversion is a placeholder in <code>core/quantization.py</code>.</td><td>Useful only if you already have a compatible GGUF and a working runtime, which this release does not provide.</td></tr>
+        <tr><th scope="row"><code>fp32</code> / <code>bf16</code></th><td>Known to the quantization catalogue; not exposed by the CLI.</td><td>Backend classes default to FP16.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="section next-links">
+  <a href="/performance.html"><span class="mono micro">NEXT</span> Performance, memory and limits →</a>
+  <a href="/quickstart.html"><span class="mono micro">START</span> Install guide →</a>
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="brand footer-logo">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false">
+            <rect x="1" y="12" width="2.4" height="8" rx="1.2"/><rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+            <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/><rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+            <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/><rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+          </svg>
+        </span>
+        <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+      </div>
+      <p>Local text-to-speech, without the cloud.</p>
+      <p class="mono micro">MIT licensed · local inference · open source</p>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Build</h2>
+      <a href="/quickstart.html">Install</a>
+      <a href="/usage.html">CLI reference</a>
+      <a href="/backends.html">Backend matrix</a>
+      <a href="/performance.html">Limits</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Project</h2>
+      <a href="/faq.html">FAQ</a>
+      <a href="/about.html">Security</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CHANGELOG.md" rel="noopener">Changelog</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/issues" rel="noopener">Issues</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Source</h2>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">GitHub</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE" rel="noopener">License</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CONTRIBUTING.md" rel="noopener">Contributing</a>
+      <a href="https://tts.danubelabs.net/sitemap.xml">Sitemap</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="mono micro">TEXT → CHUNK → MODEL → WAV</span>
+    <span class="mono micro">Built for machines you own. © 2026 VoiceSynth</span>
+  </div>
+</footer>
+</body>
+</html>

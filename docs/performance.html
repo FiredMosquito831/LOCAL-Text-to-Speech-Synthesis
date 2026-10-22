@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0e12">
+  <title>Performance, memory and limits — VoiceSynth Studio</title>
+  <meta name="description" content="What the code declares about memory, precision, sample rates, long-text chunking and the honest limits of the current release.">
+  <meta name="author" content="FiredMosquito831">
+  <link rel="canonical" href="https://tts.danubelabs.net/performance.html">
+<meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VoiceSynth Studio">
+  <meta property="og:title" content="Performance, memory and limits — VoiceSynth Studio">
+  <meta property="og:description" content="What the code declares about memory, precision, sample rates, long-text chunking and the honest limits of the current release.">
+  <meta property="og:url" content="https://tts.danubelabs.net/performance.html">
+  <meta property="og:image" content="https://tts.danubelabs.net/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VoiceSynth Studio — local text-to-speech workstation">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Performance, memory and limits — VoiceSynth Studio">
+  <meta name="twitter:description" content="What the code declares about memory, precision, sample rates, long-text chunking and the honest limits of the current release.">
+  <meta name="twitter:image" content="https://tts.danubelabs.net/og.png">
+
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "VoiceSynth Studio",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Text-to-speech synthesis",
+  "operatingSystem": "Windows, Linux, macOS",
+  "softwareVersion": "0.1.1",
+  "description": "A local-first text-to-speech workstation with a unified backend layer, voice cloning, batch synthesis and a PyQt6 studio interface.",
+  "url": "https://tts.danubelabs.net/performance.html",
+  "downloadUrl": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "codeRepository": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis",
+  "license": "https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Local text-to-speech synthesis",
+    "F5-TTS, GPT-SoVITS and Fish Speech backend integrations",
+    "Zero-shot voice cloning from reference audio",
+    "Batch synthesis queue",
+    "PyQt6 studio interface and command-line mode"
+  ],
+  "mainEntityOfPage": "https://tts.danubelabs.net/performance.html"
+}
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="signal-bar" aria-hidden="true">
+  <span>LOCAL-FIRST AUDIO</span>
+  <span class="signal-dots"><i></i><i></i><i></i><i></i><i></i></span>
+  <span>NO TELEMETRY</span>
+</div>
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="VoiceSynth Studio home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" role="img" focusable="false">
+        <rect x="1" y="12" width="2.4" height="8" rx="1.2"/>
+        <rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+        <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/>
+        <rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+        <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/>
+        <rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+        <rect x="30" y="13.5" width="1.4" height="5" rx="0.7"/>
+      </svg>
+    </span>
+    <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+    <span class="brand-version">v0.1.1</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Primary">
+    <a href="/" >Overview</a>
+    <a href="/quickstart.html" >Install</a>
+    <a href="/usage.html" >CLI &amp; GUI</a>
+    <a href="/backends.html" >Backends</a>
+    <a href="/performance.html" aria-current="page">Limits</a>
+    <a href="/faq.html" >FAQ</a>
+    <a href="/about.html" >About</a>
+  </nav>
+
+  <a class="header-cta" href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+</header>
+
+<main id="main">
+<section class="page-hero">
+  <p class="eyebrow">Performance &amp; limits</p>
+  <h1>No benchmark theater.</h1>
+  <p class="lede">
+    This project does not publish latency, real-time factor or tokens-per-second
+    numbers, because no benchmark was measured on a reference machine for this
+    release. What follows are the limits and targets that are actually encoded in
+    the source — clearly labelled as such.
+  </p>
+</section>
+
+<section class="section">
+  <div class="callout callout-warn wide-callout">
+    <strong>Read this before quoting a number.</strong>
+    The “speed multiplier”, “quality rating” and preset “expected RTF” values are
+    design metadata used for backend selection and UI hints. They are not
+    measurements and are not comparable across GPUs.
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><span class="mono micro">DECLARED F5-TTS VRAM FLOOR</span><b>1.5 GB</b><span>capability metadata</span></div>
+    <div class="stat"><span class="mono micro">MEMORY-MANAGER BUDGET</span><b>5.5 GB</b><span>+ 0.5 GB safety margin</span></div>
+    <div class="stat"><span class="mono micro">F5 OUTPUT</span><b>24 kHz</b><span>native sample rate</span></div>
+    <div class="stat"><span class="mono micro">BATCH CONCURRENCY</span><b>1</b><span>serial worker by default</span></div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Presets</p>
+    <h2>VRAM tiers as configuration templates.</h2>
+    <p class="section-lede">Parsed from <code>BUILTIN_PRESETS</code> in <code>core/presets.py</code>. The expected values are the author's targets, not measurements.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead>
+        <tr><th scope="col">Preset</th><th scope="col">Target VRAM</th><th scope="col">Backend</th><th scope="col">Precision</th><th scope="col">NFE</th><th scope="col">Expected quality</th><th scope="col">Expected RTF (declared)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Ultra Low VRAM<span class="row-sub">For systems with 3GB or less VRAM. Maximum compression with quality tradeoffs.</span></th>
+          <td class="mono">3.0 GB</td>
+          <td class="mono">llama-cpp</td>
+          <td class="mono">gguf-q4_k_m</td>
+          <td class="mono">8</td>
+          <td class="mono">2/5</td>
+          <td class="mono">0.5</td>
+        </tr>
+        <tr>
+          <th scope="row">Low VRAM<span class="row-sub">For systems with 4GB VRAM. Good balance of quality and memory usage.</span></th>
+          <td class="mono">4.0 GB</td>
+          <td class="mono">pytorch</td>
+          <td class="mono">int8-dynamic</td>
+          <td class="mono">16</td>
+          <td class="mono">3/5</td>
+          <td class="mono">0.4</td>
+        </tr>
+        <tr>
+          <th scope="row">Balanced<span class="row-sub">For systems with 5-6GB VRAM. Default recommended settings.</span></th>
+          <td class="mono">5.0 GB</td>
+          <td class="mono">pytorch</td>
+          <td class="mono">int8-dynamic</td>
+          <td class="mono">16</td>
+          <td class="mono">4/5</td>
+          <td class="mono">0.3</td>
+        </tr>
+        <tr>
+          <th scope="row">Quality<span class="row-sub">For systems with 6GB+ VRAM. Maximum quality, higher memory usage.</span></th>
+          <td class="mono">6.0 GB</td>
+          <td class="mono">pytorch</td>
+          <td class="mono">fp16</td>
+          <td class="mono">32</td>
+          <td class="mono">5/5</td>
+          <td class="mono">0.25</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="fineprint">
+    RTF here means the preset's <code>expected_rtf</code> field. Lower is faster
+    in the original data. None of these values were produced by a benchmark
+    harness in this repository.
+  </p>
+</section>
+
+<section class="section">
+  <div class="two-col">
+    <div>
+      <h2>Memory behaviour</h2>
+      <ul class="check-list">
+        <li><strong>Lazy loading.</strong> Backends load on first synthesis, not at CLI start.</li>
+        <li><strong>VRAM budget.</strong> <code>AdaptiveMemoryManager</code> defaults to a 5.5 GB budget with a 0.5 GB safety margin and optional LRU eviction.</li>
+        <li><strong>Device resolution.</strong> <code>--device auto</code> picks CUDA only when <code>torch.cuda.is_available()</code> is true.</li>
+        <li><strong>Unload is explicit.</strong> <code>manager.unload_model()</code> drops the backend and calls <code>torch.cuda.empty_cache()</code> when available.</li>
+        <li><strong>CPU offload helpers exist</strong> in <code>core/memory_manager.py</code>, but the inference manager does not automatically move a loaded backend to CPU under pressure.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Audio path</h2>
+      <ul class="check-list">
+        <li><strong>Sample rates differ by backend:</strong> F5-TTS 24 kHz, GPT-SoVITS 32 kHz, Fish Speech declares 44.1 kHz.</li>
+        <li><strong>Output is WAV via <code>soundfile</code>,</strong> using the sample rate returned by the backend.</li>
+        <li><strong>No loudness normalization</strong> is applied by the CLI. The stitching helper can normalize when used directly.</li>
+        <li><strong>Long text:</strong> the studio exposes chunking modes; the module provides sentence/character/token/paragraph strategies and crossfaded stitching. The CLI does not automatically enable <code>LongTextSynthesizer</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Honest limits</p>
+    <h2>What this release is not.</h2>
+  </div>
+  <div class="limits-grid">
+    <article><h3>Not a turnkey GPU accelerator</h3><p>ONNX, OpenVINO, TensorRT, DirectML, llama.cpp and vLLM are registered runtime scaffolds. Their <code>synthesize()</code> methods raise <code>NotImplementedError</code>. Do not expect acceleration from them.</p></article>
+    <article><h3>Not a quality benchmark</h3><p>There are no WER, speaker-similarity or MOS results in the repository. The site does not invent them, and neither should your project notes.</p></article>
+    <article><h3>Not fully offline on first run</h3><p>Model weights are fetched from Hugging Face when first needed. Once cached, synthesis runs locally. The app itself sends no telemetry.</p></article>
+    <article><h3>Not every quantization flag is real</h3><p>INT4 and GGUF are accepted by the CLI but have no effective F5-TTS path in this revision. The quantization manager's GGUF/GPTQ/AWQ conversions are placeholders.</p></article>
+    <article><h3>Not a multilingual guarantee</h3><p>The UI offers English, Romanian, Chinese and auto-detect. Auto-detection is a three-way character heuristic. Model-level language coverage depends on the weights and upstream package.</p></article>
+    <article><h3>Not a Windows/Linux parity story</h3><p>The pinned requirements target Windows/CUDA 12.1; the batch helpers are <code>.bat</code> files, DirectML is Windows-only, and vLLM is marked Linux-only.</p></article>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">Scaling notes</p>
+    <h2>Where time goes.</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead><tr><th scope="col">Lever</th><th scope="col">Effect in the code</th><th scope="col">Caution</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">NFE steps</th><td>F5-TTS diffusion sampling; UI range 4–64, default 16.</td><td>More steps generally cost more compute. No measured curve ships with the repo.</td></tr>
+        <tr><th scope="row">Text length</th><td>Chunking exists, but the CLI sends the whole input to the backend.</td><td>Very long inputs are not automatically split on the CLI path.</td></tr>
+        <tr><th scope="row">Batch size</th><td>The batch worker processes one job at a time (<code>max_concurrent=1</code>).</td><td>No parallel synthesis.</td></tr>
+        <tr><th scope="row">Precision</th><td>FP16 halves parameter memory versus FP32; INT8 on CPU can compress further.</td><td>CUDA INT8 is not implemented for F5; it silently uses FP16.</td></tr>
+        <tr><th scope="row">GPU memory</th><td>Declared floors: F5 1.5 GB, GPT-SoVITS 2 GB, Fish 2 GB; runtime scaffolds declare 0–3 GB.</td><td>These are minimums from capability metadata, not a peer-reviewed memory profile.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="section next-links">
+  <a href="/faq.html"><span class="mono micro">NEXT</span> FAQ →</a>
+  <a href="/backends.html"><span class="mono micro">REFERENCE</span> Backend matrix →</a>
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="brand footer-logo">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false">
+            <rect x="1" y="12" width="2.4" height="8" rx="1.2"/><rect x="5.9" y="8" width="2.4" height="16" rx="1.2"/>
+            <rect x="10.8" y="4" width="2.4" height="24" rx="1.2"/><rect x="15.7" y="9.5" width="2.4" height="13" rx="1.2"/>
+            <rect x="20.6" y="5.5" width="2.4" height="21" rx="1.2"/><rect x="25.5" y="11" width="2.4" height="10" rx="1.2"/>
+          </svg>
+        </span>
+        <span class="brand-text">VoiceSynth<span class="brand-accent"> Studio</span></span>
+      </div>
+      <p>Local text-to-speech, without the cloud.</p>
+      <p class="mono micro">MIT licensed · local inference · open source</p>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Build</h2>
+      <a href="/quickstart.html">Install</a>
+      <a href="/usage.html">CLI reference</a>
+      <a href="/backends.html">Backend matrix</a>
+      <a href="/performance.html">Limits</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Project</h2>
+      <a href="/faq.html">FAQ</a>
+      <a href="/about.html">Security</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CHANGELOG.md" rel="noopener">Changelog</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/issues" rel="noopener">Issues</a>
+    </div>
+    <div class="footer-links">
+      <h2 class="footer-heading">Source</h2>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis" rel="noopener">GitHub</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/LICENSE" rel="noopener">License</a>
+      <a href="https://github.com/FiredMosquito831/LOCAL-Text-to-Speech-Synthesis/blob/master/CONTRIBUTING.md" rel="noopener">Contributing</a>
+      <a href="https://tts.danubelabs.net/sitemap.xml">Sitemap</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="mono micro">TEXT → CHUNK → MODEL → WAV</span>
+    <span class="mono micro">Built for machines you own. © 2026 VoiceSynth</span>
+  </div>
+</footer>
+</body>
+</html>

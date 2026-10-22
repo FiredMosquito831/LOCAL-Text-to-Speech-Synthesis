@@ -36,54 +36,27 @@ class JobPriority(Enum):
 
 
 @dataclass
-class TTSJob:
-    """A single TTS synthesis job."""
-    
-    id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
 class BatchJob:
     """Represents a single TTS job."""
-    id: str
+
     text: str
-    voice: Optional[str]
-    adapter: Optional[str]  # New field
-    priority: JobPriority
+    id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
+    voice: Optional[str] = None
+    adapter: Optional[str] = None
+    ref_audio_path: Optional[str] = None
+    output_path: Optional[str] = None
+    settings: Dict[str, Any] = field(default_factory=dict)
+    priority: JobPriority = JobPriority.NORMAL
     status: JobStatus = JobStatus.PENDING
     progress: int = 0
     message: str = ""
     error: Optional[str] = None
-    
-    # The original TTSJob had more fields and methods.
-    # For now, I'm keeping the simplified BatchJob as per the diff,
-    # but this might require further adjustments in other parts of the code
-    # that relied on the removed fields (e.g., ref_audio_path, output_path, settings, timing, results).
-    # The diff implies a significant refactoring of the job structure.
-    
-    # Keeping __lt__ for PriorityQueue compatibility, assuming it's still needed.
-    # If created_at is removed from BatchJob, this comparison needs adjustment.
-    # Assuming a default_factory for id and created_at might be needed if not passed.
-    # For now, I'll add back created_at to make __lt__ work, or remove __lt__ if not used with PriorityQueue.
-    # The diff removes `created_at` from the dataclass definition, but the `__lt__` method relies on it.
-    # This is a conflict. Given the diff's explicit definition of BatchJob, I will remove `__lt__`
-    # and assume the PriorityQueue will handle ordering based on priority alone, or that the queue
-    # implementation will be changed.
-    # However, the `_queue: PriorityQueue` is still present.
-    # The diff provided for BatchJob is incomplete if it's meant to replace TTSJob entirely
-    # and still work with PriorityQueue and other parts of the system.
-    # I will try to infer the most logical change: keep the original TTSJob structure but add 'adapter'
-    # and rename it to BatchJob, while also applying the other changes.
-    # This is a tricky situation where the diff for the dataclass is very different from the original.
-    # I will assume the user wants to *add* the adapter field and rename, but keep the existing functionality
-    # of TTSJob unless explicitly removed by the diff in other sections.
-    # The provided diff for BatchJob is a *replacement* for the TTSJob dataclass.
-    # I will apply the diff's BatchJob definition as is, and then address downstream issues.
 
-    # Re-evaluating: The instruction says "Update BatchJob dataclass".
-    # The provided diff for BatchJob is a complete definition.
     # Timing
     created_at: float = field(default_factory=time.time)
     started_at: Optional[float] = None
     completed_at: Optional[float] = None
-    
+
     # Results
     audio_data: Optional[Any] = None
     sample_rate: int = 24000
@@ -142,19 +115,19 @@ class BatchQueue:
         self.max_concurrent = max_concurrent
         
         self._queue: PriorityQueue = PriorityQueue()
-        self._jobs: Dict[str, BatchJob] = {} # Changed from TTSJob to BatchJob
+        self._jobs: Dict[str, BatchJob] = {}
         self._lock = threading.Lock()
         
         self._running = False
         self._paused = False
         self._worker_thread: Optional[threading.Thread] = None
-        self._current_job: Optional[BatchJob] = None # Changed from TTSJob to BatchJob
+        self._current_job: Optional[BatchJob] = None
         
         # Callbacks
-        self._on_job_start: List[Callable[[BatchJob], None]] = [] # Changed from TTSJob to BatchJob
-        self._on_job_progress: List[Callable[[BatchJob, int, str], None]] = [] # Changed from TTSJob to BatchJob
-        self._on_job_complete: List[Callable[[BatchJob], None]] = [] # Changed from TTSJob to BatchJob
-        self._on_job_error: List[Callable[[BatchJob, str], None]] = [] # Changed from TTSJob to BatchJob
+        self._on_job_start: List[Callable[[BatchJob], None]] = []
+        self._on_job_progress: List[Callable[[BatchJob, int, str], None]] = []
+        self._on_job_complete: List[Callable[[BatchJob], None]] = []
+        self._on_job_error: List[Callable[[BatchJob, str], None]] = []
         self._on_queue_empty: List[Callable[[], None]] = []
         
         if auto_start:
@@ -176,17 +149,16 @@ class BatchQueue:
         Returns:
             Job ID
         """
-        # The BatchJob dataclass no longer has ref_audio_path, output_path, settings.
-        # This `add_job` method needs to be updated to reflect the new BatchJob structure.
-        # The diff only provides a snippet for `add_batch`, not `add_job`.
-        # I will adapt `add_job` to the new `BatchJob` structure.
         job_id = str(uuid.uuid4())[:8]
         job = BatchJob(
             id=job_id,
             text=text,
             voice=voice,
             adapter=adapter,
-            priority=priority
+            ref_audio_path=ref_audio_path,
+            output_path=output_path,
+            priority=priority,
+            settings=settings
         )
         
         with self._lock:
@@ -238,11 +210,11 @@ class BatchQueue:
         logger.info(f"Added batch of {len(job_ids)} jobs")
         return job_ids
     
-    def get_job(self, job_id: str) -> Optional[BatchJob]: # Changed from TTSJob to BatchJob
+    def get_job(self, job_id: str) -> Optional[BatchJob]:
         """Get job by ID."""
         return self._jobs.get(job_id)
     
-    def get_all_jobs(self) -> List[BatchJob]: # Changed from TTSJob to BatchJob
+    def get_all_jobs(self) -> List[BatchJob]:
         """Get all jobs."""
         return list(self._jobs.values())
     
@@ -339,7 +311,7 @@ class BatchQueue:
                 logger.error(f"Worker loop error: {e}")
                 time.sleep(0.5)
     
-    def _process_job(self, job: TTSJob):
+    def _process_job(self, job: BatchJob):
         """Process a single job."""
         self._current_job = job
         job.status = JobStatus.PROCESSING
@@ -364,21 +336,29 @@ class BatchQueue:
                         pass
             
             # Run synthesis
-            if self.inference_manager:
-                audio, sample_rate = self.inference_manager.synthesize(
-                    text=job.text,
-                    voice=job.voice,
-                    progress_callback=progress_callback,
-                    **job.settings
-                )
-                
-                job.audio_data = audio
-                job.sample_rate = sample_rate
-                job.duration_s = len(audio) / sample_rate
-                
-                # Save if output path specified
-                if job.output_path:
-                    self._save_audio(job)
+            if self.inference_manager is None:
+                raise RuntimeError("No inference manager configured for the batch queue")
+
+            if job.adapter and hasattr(self.inference_manager, "set_adapter"):
+                # Adapters are attached to a loaded backend instance.
+                if hasattr(self.inference_manager, "load_model"):
+                    self.inference_manager.load_model()
+                self.inference_manager.set_adapter(job.adapter)
+
+            audio, sample_rate = self.inference_manager.synthesize(
+                text=job.text,
+                voice=job.voice or job.ref_audio_path,
+                progress_callback=progress_callback,
+                **job.settings
+            )
+
+            job.audio_data = audio
+            job.sample_rate = sample_rate
+            job.duration_s = len(audio) / sample_rate
+
+            # Save if output path specified
+            if job.output_path:
+                self._save_audio(job)
             
             job.status = JobStatus.COMPLETED
             job.completed_at = time.time()
@@ -410,7 +390,7 @@ class BatchQueue:
         finally:
             self._current_job = None
     
-    def _save_audio(self, job: TTSJob):
+    def _save_audio(self, job: BatchJob):
         """Save audio to file."""
         try:
             import soundfile as sf
@@ -447,16 +427,16 @@ class BatchQueue:
         return result
     
     # Callback registration
-    def on_job_start(self, callback: Callable[[TTSJob], None]):
+    def on_job_start(self, callback: Callable[[BatchJob], None]):
         self._on_job_start.append(callback)
     
-    def on_job_progress(self, callback: Callable[[TTSJob, int, str], None]):
+    def on_job_progress(self, callback: Callable[[BatchJob, int, str], None]):
         self._on_job_progress.append(callback)
     
-    def on_job_complete(self, callback: Callable[[TTSJob], None]):
+    def on_job_complete(self, callback: Callable[[BatchJob], None]):
         self._on_job_complete.append(callback)
     
-    def on_job_error(self, callback: Callable[[TTSJob, str], None]):
+    def on_job_error(self, callback: Callable[[BatchJob, str], None]):
         self._on_job_error.append(callback)
     
     def on_queue_empty(self, callback: Callable[[], None]):

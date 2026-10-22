@@ -47,7 +47,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("VoiceSynth Studio v0.1.0")
+        from core import __version__ as APP_VERSION
+        self.setWindowTitle(f"VoiceSynth Studio v{APP_VERSION}")
         self.setMinimumSize(1200, 800)
         
         # Initialize inference manager
@@ -418,8 +419,8 @@ class MainWindow(QMainWindow):
         QMessageBox.about(
             self,
             "About VoiceSynth Studio",
-            """<h2>VoiceSynth Studio</h2>
-            <p>Version 0.1.0</p>
+            f"""<h2>VoiceSynth Studio</h2>
+            <p>Version {APP_VERSION}</p>
             <p>A state-of-the-art local voice synthesis application.</p>
             <p><b>Features:</b></p>
             <ul>

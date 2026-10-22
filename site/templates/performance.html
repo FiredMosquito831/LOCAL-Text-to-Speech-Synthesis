@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="page-hero">
+  <p class="eyebrow">Performance &amp; limits</p>
+  <h1>No benchmark theater.</h1>
+  <p class="lede">
+    This project does not publish latency, real-time factor or tokens-per-second
+    numbers, because no benchmark was measured on a reference machine for this
+    release. What follows are the limits and targets that are actually encoded in
+    the source — clearly labelled as such.
+  </p>
+</section>
+
+<section class="section">
+  <div class="callout callout-warn wide-callout">
+    <strong>Read this before quoting a number.</strong>
+    The “speed multiplier”, “quality rating” and preset “expected RTF” values are
+    design metadata used for backend selection and UI hints. They are not
+    measurements and are not comparable across GPUs.
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><span class="mono micro">DECLARED F5-TTS VRAM FLOOR</span><b>1.5 GB</b><span>capability metadata</span></div>
+    <div class="stat"><span class="mono micro">MEMORY-MANAGER BUDGET</span><b>5.5 GB</b><span>+ 0.5 GB safety margin</span></div>
+    <div class="stat"><span class="mono micro">F5 OUTPUT</span><b>24 kHz</b><span>native sample rate</span></div>
+    <div class="stat"><span class="mono micro">BATCH CONCURRENCY</span><b>1</b><span>serial worker by default</span></div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Presets</p>
+    <h2>VRAM tiers as configuration templates.</h2>
+    <p class="section-lede">Parsed from <code>BUILTIN_PRESETS</code> in <code>core/presets.py</code>. The expected values are the author's targets, not measurements.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead>
+        <tr><th scope="col">Preset</th><th scope="col">Target VRAM</th><th scope="col">Backend</th><th scope="col">Precision</th><th scope="col">NFE</th><th scope="col">Expected quality</th><th scope="col">Expected RTF (declared)</th></tr>
+      </thead>
+      <tbody>
+        {% for preset in data.presets %}
+        <tr>
+          <th scope="row">{{ preset.name }}<span class="row-sub">{{ preset.description }}</span></th>
+          <td class="mono">{{ preset.target_vram_gb }} GB</td>
+          <td class="mono">{{ preset.backend }}</td>
+          <td class="mono">{{ preset.quantization }}</td>
+          <td class="mono">{{ preset.nfe_steps }}</td>
+          <td class="mono">{{ preset.expected_quality }}/5</td>
+          <td class="mono">{{ preset.expected_rtf }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="fineprint">
+    RTF here means the preset's <code>expected_rtf</code> field. Lower is faster
+    in the original data. None of these values were produced by a benchmark
+    harness in this repository.
+  </p>
+</section>
+
+<section class="section">
+  <div class="two-col">
+    <div>
+      <h2>Memory behaviour</h2>
+      <ul class="check-list">
+        <li><strong>Lazy loading.</strong> Backends load on first synthesis, not at CLI start.</li>
+        <li><strong>VRAM budget.</strong> <code>AdaptiveMemoryManager</code> defaults to a 5.5 GB budget with a 0.5 GB safety margin and optional LRU eviction.</li>
+        <li><strong>Device resolution.</strong> <code>--device auto</code> picks CUDA only when <code>torch.cuda.is_available()</code> is true.</li>
+        <li><strong>Unload is explicit.</strong> <code>manager.unload_model()</code> drops the backend and calls <code>torch.cuda.empty_cache()</code> when available.</li>
+        <li><strong>CPU offload helpers exist</strong> in <code>core/memory_manager.py</code>, but the inference manager does not automatically move a loaded backend to CPU under pressure.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Audio path</h2>
+      <ul class="check-list">
+        <li><strong>Sample rates differ by backend:</strong> F5-TTS 24 kHz, GPT-SoVITS 32 kHz, Fish Speech declares 44.1 kHz.</li>
+        <li><strong>Output is WAV via <code>soundfile</code>,</strong> using the sample rate returned by the backend.</li>
+        <li><strong>No loudness normalization</strong> is applied by the CLI. The stitching helper can normalize when used directly.</li>
+        <li><strong>Long text:</strong> the studio exposes chunking modes; the module provides sentence/character/token/paragraph strategies and crossfaded stitching. The CLI does not automatically enable <code>LongTextSynthesizer</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head">
+    <p class="eyebrow">Honest limits</p>
+    <h2>What this release is not.</h2>
+  </div>
+  <div class="limits-grid">
+    <article><h3>Not a turnkey GPU accelerator</h3><p>ONNX, OpenVINO, TensorRT, DirectML, llama.cpp and vLLM are registered runtime scaffolds. Their <code>synthesize()</code> methods raise <code>NotImplementedError</code>. Do not expect acceleration from them.</p></article>
+    <article><h3>Not a quality benchmark</h3><p>There are no WER, speaker-similarity or MOS results in the repository. The site does not invent them, and neither should your project notes.</p></article>
+    <article><h3>Not fully offline on first run</h3><p>Model weights are fetched from Hugging Face when first needed. Once cached, synthesis runs locally. The app itself sends no telemetry.</p></article>
+    <article><h3>Not every quantization flag is real</h3><p>INT4 and GGUF are accepted by the CLI but have no effective F5-TTS path in this revision. The quantization manager's GGUF/GPTQ/AWQ conversions are placeholders.</p></article>
+    <article><h3>Not a multilingual guarantee</h3><p>The UI offers English, Romanian, Chinese and auto-detect. Auto-detection is a three-way character heuristic. Model-level language coverage depends on the weights and upstream package.</p></article>
+    <article><h3>Not a Windows/Linux parity story</h3><p>The pinned requirements target Windows/CUDA 12.1; the batch helpers are <code>.bat</code> files, DirectML is Windows-only, and vLLM is marked Linux-only.</p></article>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">Scaling notes</p>
+    <h2>Where time goes.</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead><tr><th scope="col">Lever</th><th scope="col">Effect in the code</th><th scope="col">Caution</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">NFE steps</th><td>F5-TTS diffusion sampling; UI range 4–64, default 16.</td><td>More steps generally cost more compute. No measured curve ships with the repo.</td></tr>
+        <tr><th scope="row">Text length</th><td>Chunking exists, but the CLI sends the whole input to the backend.</td><td>Very long inputs are not automatically split on the CLI path.</td></tr>
+        <tr><th scope="row">Batch size</th><td>The batch worker processes one job at a time (<code>max_concurrent=1</code>).</td><td>No parallel synthesis.</td></tr>
+        <tr><th scope="row">Precision</th><td>FP16 halves parameter memory versus FP32; INT8 on CPU can compress further.</td><td>CUDA INT8 is not implemented for F5; it silently uses FP16.</td></tr>
+        <tr><th scope="row">GPU memory</th><td>Declared floors: F5 1.5 GB, GPT-SoVITS 2 GB, Fish 2 GB; runtime scaffolds declare 0–3 GB.</td><td>These are minimums from capability metadata, not a peer-reviewed memory profile.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="section next-links">
+  <a href="/faq.html"><span class="mono micro">NEXT</span> FAQ →</a>
+  <a href="/backends.html"><span class="mono micro">REFERENCE</span> Backend matrix →</a>
+</div>
+{% endblock %}

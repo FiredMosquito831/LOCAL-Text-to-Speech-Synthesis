@@ -18,6 +18,8 @@ import argparse
 import logging
 from pathlib import Path
 
+from core import __version__ as APP_VERSION
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -45,9 +47,14 @@ Examples:
     
     # Mode selection
     parser.add_argument(
-        "--cli", 
+        "--cli",
         action="store_true",
         help="Run in CLI mode instead of GUI"
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"VoiceSynth Studio {APP_VERSION}"
     )
     
     # CLI-specific options
@@ -121,7 +128,7 @@ def run_gui():
     app = QApplication(sys.argv)
     app.setApplicationName("VoiceSynth Studio")
     app.setOrganizationName("VoiceSynth")
-    app.setApplicationVersion("0.1.0")
+    app.setApplicationVersion(APP_VERSION)
     
     # Apply dark theme
     try:
@@ -165,14 +172,14 @@ def run_cli(args):
     
     # Generate audio
     try:
-        audio = manager.synthesize(
+        audio, sample_rate = manager.synthesize(
             text=text,
             voice=args.voice,
         )
-        
+
         # Save output
-        manager.save_audio(audio, args.output)
-        logger.info(f"Audio saved to: {args.output}")
+        manager.save_audio(audio, args.output, sample_rate)
+        logger.info(f"Audio saved to: {args.output} ({sample_rate} Hz)")
         
     except Exception as e:
         logger.error(f"Synthesis failed: {e}")
@@ -184,7 +191,7 @@ def main():
     args = parse_args()
     
     logger.info("=" * 50)
-    logger.info("VoiceSynth Studio v0.1.0")
+    logger.info(f"VoiceSynth Studio v{APP_VERSION}")
     logger.info("=" * 50)
     
     if args.cli:

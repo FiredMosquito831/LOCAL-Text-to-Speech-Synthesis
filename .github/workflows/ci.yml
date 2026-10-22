@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Core tests and site check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install test and site dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Byte-compile the package
+        run: python -m compileall -q main.py core ui utils scripts
+
+      - name: Run model-free test suite
+        run: python -m pytest
+
+      - name: Verify generated docs are current and valid
+        run: python scripts/build_site.py --check
+
+  smoke:
+    name: Legacy smoke suite (Windows)
+    runs-on: windows-latest
+    env:
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install smoke-test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy==1.26.4 soundfile==0.13.1 PyQt6==6.10.2
+
+      - name: Run legacy test suite
+        run: python test_all.py

@@ -1,0 +1,3 @@
+# Dependencies for building the static documentation site in docs/.
+# These are intentionally separate from the TTS runtime requirements.
+Jinja2==3.1.6

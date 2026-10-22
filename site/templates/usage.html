@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="page-hero">
+  <p class="eyebrow">Interface reference</p>
+  <h1>CLI flags, studio panels, Python API.</h1>
+  <p class="lede">
+    The command-line table below is generated from the live <code>argparse</code>
+    definition in <code>main.py</code> during the site build. If a flag is not in
+    that table, it does not exist.
+  </p>
+</section>
+
+<section class="section doc-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="mono micro">ON THIS PAGE</p>
+    <a href="#cli">CLI reference</a>
+    <a href="#examples">Examples</a>
+    <a href="#behaviour">CLI behaviour</a>
+    <a href="#studio">Studio guide</a>
+    <a href="#profiles">Profiles &amp; cloning</a>
+    <a href="#batch">Batch queue</a>
+    <a href="#python">Python API</a>
+    <a href="#modules">Support modules</a>
+  </aside>
+
+  <div class="doc-body">
+    <section id="cli" class="doc-section">
+      <h2>CLI reference</h2>
+      <p>Invocation: <code class="mono">{{ data.cli.prog }} [options]</code></p>
+
+      {% for group, options in data.cli.groups.items() %}
+      <h3 class="group-title">{{ group }}</h3>
+      <div class="table-wrap">
+        <table class="matrix cli-table">
+          <thead>
+            <tr><th scope="col">Flag</th><th scope="col">Value</th><th scope="col">Default</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody>
+            {% for opt in options %}
+            <tr>
+              <th scope="row"><code>{{ opt.flags | join(', ') }}</code></th>
+              <td>
+                {% if opt.choices %}<code>{{ '{' }}{{ opt.choices | join(',') }}{{ '}' }}</code>
+                {% elif opt.action == 'store_true' or opt.action == 'version' %}<span class="mono muted">—</span>
+                {% elif opt.type %}<code>{{ opt.type }}</code>
+                {% else %}<span class="mono muted">—</span>{% endif %}
+              </td>
+              <td class="mono">
+                {% if opt.default is none %}<span class="muted">not set</span>
+                {% elif opt.default is true %}true
+                {% elif opt.default is false %}false
+                {% else %}{{ opt.default }}{% endif %}
+              </td>
+              <td>{{ opt.help }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+
+      <div class="callout">
+        <strong>Backend choices are model backends, not runtime targets.</strong>
+        <code>--backend</code> accepts <code>f5-tts</code>, <code>gpt-sovits</code> and
+        <code>fish-speech</code>. The ONNX / OpenVINO / TensorRT / DirectML /
+        llama.cpp / vLLM classes live in the registry used by the GUI and auto-selector;
+        their synthesis methods are not implemented.
+      </div>
+    </section>
+
+    <section id="examples" class="doc-section">
+      <h2>Examples</h2>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">synthesize</span></div>
+        <pre><code># Short text
+python main.py --cli --text "Hello from the studio." --output hello.wav
+
+# From a UTF-8 text file
+python main.py --cli --file input.txt --output output.wav
+
+# Reference audio for zero-shot cloning
+python main.py --cli --text "Hello" \
+  --voice reference.wav --backend f5-tts --output cloned.wav
+
+# Force CPU and FP16
+python main.py --cli --text "Hello" --device cpu --quantization fp16</code></pre>
+      </div>
+      <p class="fineprint">
+        <code>--voice</code> accepts a path to a reference audio file
+        (WAV/MP3/FLAC/OGG/M4A) or the name/ID of a saved speaker profile. Profiles
+        are stored in <code>~/.config/voicesynth/profiles.db</code>.
+      </p>
+    </section>
+
+    <section id="behaviour" class="doc-section">
+      <h2>CLI behaviour worth knowing</h2>
+      <ul class="check-list">
+        <li><strong>Output sample rate follows the backend.</strong> The CLI now saves the sample rate returned by synthesis instead of assuming 24 kHz, so GPT-SoVITS (32 kHz) is written correctly.</li>
+        <li><strong>No input is an error.</strong> Pass <code>--text</code> or <code>--file</code>; the process exits non-zero otherwise.</li>
+        <li><strong>Model loading is lazy.</strong> The manager loads the backend on the first <code>synthesize()</code> call.</li>
+        <li><strong>Quantization is accepted, not guaranteed.</strong> The CLI exposes five levels, but the F5-TTS backend effectively implements FP16 and INT8. On CUDA, INT8 falls back to FP16 with a log line; CPU can apply dynamic INT8. INT4/GGUF flags do not magically quantize an F5 checkpoint.</li>
+        <li><strong>Language is a hint.</strong> <code>auto</code> uses a character heuristic: Romanian diacritics → <code>ro</code>, CJK → <code>zh</code>, otherwise <code>en</code>.</li>
+      </ul>
+    </section>
+
+    <section id="studio" class="doc-section">
+      <h2>Studio guide</h2>
+      <p>Launch with <code>python main.py</code>. The main window is a tabbed workspace with a GPU monitor on the right.</p>
+      <div class="ui-list">
+        <article><span class="mono idx">01</span><div><h3>Text-to-Speech</h3><p>Write or paste text. Choose voice, language (EN/RO/ZH/auto), backend, adapter, NFE steps (4–64), sampler (Euler/Midpoint/RK4), speed (0.5–2.0×), seed and chunking mode. Generate, inspect the waveform, play the result and export WAV.</p></div></article>
+        <article><span class="mono idx">02</span><div><h3>Voice Cloning</h3><p>Drop a reference clip, transcribe it with faster-whisper if installed, review/edit the transcript, then save a profile. The profile can be selected anywhere a voice is requested.</p></div></article>
+        <article><span class="mono idx">03</span><div><h3>Backends</h3><p>Shows the registry entries and install hints. The panel exposes options for ONNX providers, llama.cpp context/GPU layers, OpenVINO devices and DirectML device IDs; these configure loaders, not missing synthesis code.</p></div></article>
+        <article><span class="mono idx">04</span><div><h3>Quantization</h3><p>Lists supported methods and memory estimates. The bitsandbytes path is implemented; GGUF/GPTQ/AWQ conversion controls are placeholders and the UI warns about that.</p></div></article>
+        <article><span class="mono idx">05</span><div><h3>Presets</h3><p>Four built-in VRAM presets (Ultra Low, Low, Balanced, Quality) plus custom presets persisted as JSON. Presets are configuration templates; they do not benchmark your machine.</p></div></article>
+        <article><span class="mono idx">06</span><div><h3>Batch</h3><p>Paste one job per line, choose priority, voice and adapter. The queue runs jobs through the same inference manager with pause, resume, cancel and per-job status.</p></div></article>
+        <article><span class="mono idx">07</span><div><h3>Monitor</h3><p>VRAM, utilization, temperature and memory-manager statistics. Without NVML the widget degrades to a “not available” state instead of crashing.</p></div></article>
+      </div>
+    </section>
+
+    <section id="profiles" class="doc-section">
+      <h2>Profiles &amp; cloning</h2>
+      <p>
+        A <code>SpeakerProfile</code> stores a name, tags, description, reference
+        samples (path, transcript, duration), a quality score and optional
+        embedding data. Profiles can be exported/imported as human-readable
+        <code>.vsp</code> JSON files.
+      </p>
+      <p>
+        Sample quality is scored locally from duration, RMS energy, clipping and
+        silence ratio. The voice-fusion module can blend multiple spectral
+        embeddings (average, quality-weighted, duration-weighted), but the
+        GPT-SoVITS and Fish branches currently reuse a generic mel-statistics
+        embedding rather than their native encoders.
+      </p>
+    </section>
+
+    <section id="batch" class="doc-section">
+      <h2>Batch queue</h2>
+      <p>The queue is a priority worker thread. Jobs carry text, voice, adapter, optional reference audio and output path. Callbacks fire on start, progress, completion and error.</p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">python</span></div>
+        <pre><code>from core.batch_queue import BatchQueue, JobPriority
+
+queue = BatchQueue(inference_manager=manager)
+queue.add_batch(
+    texts=["First line.", "Second line."],
+    voice="reference.wav",
+    output_dir="out",
+    priority=JobPriority.NORMAL,
+)
+queue.start()</code></pre>
+      </div>
+    </section>
+
+    <section id="python" class="doc-section">
+      <h2>Python API</h2>
+      <p>The orchestrator is small enough to embed directly.</p>
+      <div class="code-block">
+        <div class="code-head"><span class="mono">python</span></div>
+        <pre><code>from core.inference_manager import InferenceManager
+
+manager = InferenceManager(backend="f5-tts", quantization="int8", device="auto")
+audio, sample_rate = manager.synthesize(
+    text="The tape is rolling.",
+    voice="reference.wav",   # optional path or profile name
+    nfe_steps=16,
+    speed=1.0,
+    language="en",
+)
+manager.save_audio(audio, "out.wav", sample_rate)
+manager.unload_model()</code></pre>
+      </div>
+      <p class="fineprint">
+        <code>synthesize()</code> returns <code>(numpy.ndarray, sample_rate)</code>.
+        The CLI used to discard the second element — fixed in this revamp.
+      </p>
+    </section>
+
+    <section id="modules" class="doc-section">
+      <h2>Support modules</h2>
+      <div class="table-wrap">
+        <table class="matrix">
+          <thead><tr><th scope="col">Module</th><th scope="col">What it does</th><th scope="col">Wired into CLI?</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>core.chunking</code></th><td>Sentence/character/token/paragraph chunking and crossfaded audio stitching, plus <code>LongTextSynthesizer</code>.</td><td class="mono">No — library/UI-level</td></tr>
+            <tr><th scope="row"><code>core.memory_manager</code></th><td>LRU model registry, VRAM budget, eviction callbacks and CPU offload helpers.</td><td class="mono">Monitor only</td></tr>
+            <tr><th scope="row"><code>core.profile_database</code></th><td>SQLite profiles, quality scoring and <code>.vsp</code> exchange.</td><td class="mono">Voice resolution</td></tr>
+            <tr><th scope="row"><code>core.voice_fusion</code></th><td>Spectral embedding extraction and fusion strategies.</td><td class="mono">No</td></tr>
+            <tr><th scope="row"><code>core.quantization</code></th><td>Method catalogue, memory estimates, bitsandbytes helper; GGUF/GPTQ/AWQ conversion is a placeholder.</td><td class="mono">No — GUI panel</td></tr>
+            <tr><th scope="row"><code>core.presets</code></th><td>Built-in and custom VRAM presets persisted as JSON.</td><td class="mono">No — GUI panel</td></tr>
+            <tr><th scope="row"><code>core.backend_registry</code></th><td>Registration, availability checks and a VRAM-based auto-selector.</td><td class="mono">No — GUI</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="next-links">
+      <a href="/backends.html"><span class="mono micro">NEXT</span> Backend matrix →</a>
+      <a href="/performance.html"><span class="mono micro">REFERENCE</span> Performance &amp; limits →</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

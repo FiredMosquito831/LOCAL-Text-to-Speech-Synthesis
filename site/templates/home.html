@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="pulse-dot"></span>Local-first TTS workstation · v{{ data.version }}</p>
+      <h1>Text in. Voice out.<br><span class="accent">Nothing leaves</span> the studio.</h1>
+      <p class="lede">
+        VoiceSynth Studio unifies open TTS models behind one local workflow:
+        a command-line synthesizer, a PyQt6 studio, voice references, profiles
+        and batch queues. No accounts. No API keys. No audio uploads.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/quickstart.html">Install locally <span aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="/backends.html">Inspect the backends</a>
+      </div>
+      <ul class="hero-facts">
+        <li><strong>3</strong> model backends</li>
+        <li><strong>9</strong> registered targets</li>
+        <li><strong>0</strong> telemetry endpoints</li>
+      </ul>
+    </div>
+
+    <div class="hero-console" aria-label="Example CLI session">
+      <div class="console-head">
+        <span class="console-title mono">voicesynth / session</span>
+        <span class="console-leds" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <div class="console-body">
+        <div class="terminal-line"><span class="prompt">$</span> <span>python main.py --cli \</span></div>
+        <div class="terminal-line indent"><span>--text "The tape is rolling." \</span></div>
+        <div class="terminal-line indent"><span>--backend f5-tts \</span></div>
+        <div class="terminal-line indent"><span>--output session.wav</span></div>
+        <div class="terminal-line muted"><span>INFO | Backend: f5-tts</span></div>
+        <div class="terminal-line muted"><span>INFO | Loading F5-TTS components...</span></div>
+        <div class="terminal-line ok"><span>INFO | Audio saved to: session.wav (24000 Hz)</span></div>
+        <div class="console-wave" aria-hidden="true">
+          {% for h in [18,42,65,34,80,54,26,72,92,60,38,84,48,22,58,76,36,68,44,90,52,30,64,40,74,28,56,82,46,20,62,50,70,32,86,42,24,66,48,80,36,54,28,72,44,60,34,50,78,40] %}
+          <i style="--h: {{ h }}%"></i>
+          {% endfor %}
+        </div>
+        <div class="console-meta mono">
+          <span>24 kHz</span><span>WAV / PCM</span><span>LOCAL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">Signal chain</p>
+    <h2>One interface, several model families.</h2>
+    <p class="section-lede">
+      The repository ships a shared backend contract, an inference manager, a
+      PyQt6 studio and a CLI. Model code and weights stay external, so you can
+      choose what to install.
+    </p>
+  </div>
+  <div class="chain" role="list" aria-label="Synthesis pipeline">
+    <div class="chain-node" role="listitem">
+      <span class="mono step">01</span>
+      <h3>Text</h3>
+      <p>CLI text or file, or the studio editor. Language can be set or heuristically detected.</p>
+    </div>
+    <div class="chain-arrow" aria-hidden="true">→</div>
+    <div class="chain-node" role="listitem">
+      <span class="mono step">02</span>
+      <h3>Manager</h3>
+      <p><code>InferenceManager</code> resolves device, precision and the selected backend.</p>
+    </div>
+    <div class="chain-arrow" aria-hidden="true">→</div>
+    <div class="chain-node" role="listitem">
+      <span class="mono step">03</span>
+      <h3>Backend</h3>
+      <p>F5-TTS, GPT-SoVITS or Fish Speech behind a common <code>TTSBackend</code> API.</p>
+    </div>
+    <div class="chain-arrow" aria-hidden="true">→</div>
+    <div class="chain-node" role="listitem">
+      <span class="mono step">04</span>
+      <h3>WAV</h3>
+      <p>Audio is written with <code>soundfile</code> at the backend's native sample rate.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head split-head">
+    <div>
+      <p class="eyebrow">Reality check</p>
+      <h2>What the code actually ships.</h2>
+      <p class="section-lede">Status is derived from the source, not the roadmap. Interfaces without synthesis are labelled as such.</p>
+    </div>
+    <a class="text-link" href="/backends.html">Full backend matrix →</a>
+  </div>
+
+  <div class="card-grid three">
+    {% for backend in data.model_backends %}
+    <article class="backend-card">
+      <div class="card-top">
+        <span class="mono tag">{{ backend.backend_type }}</span>
+        {% if backend.status == 'implemented' %}
+        <span class="status status-ok">implemented</span>
+        {% elif backend.status == 'scaffold' %}
+        <span class="status status-warn">scaffold</span>
+        {% else %}
+        <span class="status status-muted">interface</span>
+        {% endif %}
+      </div>
+      <h3>{{ backend.name }}</h3>
+      {% if backend.module == 'backend_f5' %}
+      <p>Zero-shot cloning with reference audio, configurable NFE steps and adapter checkpoints. This is the default and the most complete synthesis path.</p>
+      <ul class="spec-list">
+        <li><span>VRAM floor</span><b>{{ backend.vram_label }}</b></li>
+        <li><span>Sample rate</span><b>{{ backend.target_sample_rate }} Hz</b></li>
+        <li><span>Precision</span><b>{{ backend.supports_quantization | join(' · ') }}</b></li>
+      </ul>
+      {% elif backend.module == 'backend_gptsovits' %}
+      <p>Drives the external GPT-SoVITS package when installed. Without the package the backend logs a warning and returns a placeholder tone instead of failing loudly.</p>
+      <ul class="spec-list">
+        <li><span>VRAM floor</span><b>{{ backend.vram_label }}</b></li>
+        <li><span>Sample rate</span><b>{{ backend.target_sample_rate }} Hz</b></li>
+        <li><span>Precision</span><b>{{ backend.supports_quantization | join(' · ') }}</b></li>
+      </ul>
+      {% else %}
+      <p>Integration scaffold: the loading path is present, but the inference engine is not wired, so synthesis falls back to a placeholder tone. Treat it as unfinished.</p>
+      <ul class="spec-list">
+        <li><span>VRAM floor</span><b>{{ backend.vram_label }}</b></li>
+        <li><span>Sample rate</span><b>{{ backend.target_sample_rate }} Hz</b></li>
+        <li><span>Precision</span><b>{{ backend.supports_quantization | join(' · ') }}</b></li>
+      </ul>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+
+  <div class="matrix-wrap">
+    <table class="matrix">
+      <caption class="sr-only">Registered runtime targets and implementation status</caption>
+      <thead>
+        <tr><th scope="col">Runtime target</th><th scope="col">Status</th><th scope="col">VRAM floor</th><th scope="col">Platforms</th><th scope="col">Synthesis</th></tr>
+      </thead>
+      <tbody>
+        {% for backend in data.runtimes %}
+        <tr>
+          <th scope="row">{{ backend.name }}</th>
+          <td>
+            {% if backend.status == 'implemented' %}<span class="status status-ok">implemented</span>
+            {% elif backend.status == 'scaffold' %}<span class="status status-warn">scaffold</span>
+            {% else %}<span class="status status-muted">interface</span>{% endif %}
+          </td>
+          <td class="mono">{{ backend.vram_label }}</td>
+          <td class="mono">{% if backend.windows_supported %}WIN{% endif %}{% if backend.windows_supported and backend.linux_supported %} · {% endif %}{% if backend.linux_supported %}LINUX{% endif %}{% if not backend.windows_supported and not backend.linux_supported %}—{% endif %}</td>
+          <td class="mono">{% if backend.supports_synthesis %}yes{% else %}no — <code>NotImplementedError</code>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="fineprint">
+    Runtime targets are registered in <code>core/backend_registry.py</code>. Several can load a model
+    or session but have no TTS synthesis implementation yet. They are not advertised as acceleration.
+  </p>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <p class="eyebrow">Why local</p>
+    <h2>Your microphone room, not someone's server room.</h2>
+  </div>
+  <div class="card-grid three">
+    <article class="feature-card">
+      <div class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <h3>Private by construction</h3>
+      <p>Text and reference audio are processed by local Python code. The application has no telemetry, analytics or cloud API client. Model weights are downloaded from Hugging Face only when needed.</p>
+    </article>
+    <article class="feature-card">
+      <div class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><path d="M7 10h2l1.5-3 2 6 1.5-3h3"/></svg>
+      </div>
+      <h3>A studio, not a demo</h3>
+      <p>Waveform review, playback, voice-profile management, GPU monitoring, presets and a priority batch queue are part of the PyQt6 application.</p>
+    </article>
+    <article class="feature-card">
+      <div class="feature-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h13"/><circle cx="18" cy="12" r="2"/><circle cx="20" cy="17" r="2"/></svg>
+      </div>
+      <h3>Honest interfaces</h3>
+      <p>The runtime layer is a real abstraction with capability metadata. Not every registered target synthesizes audio yet — this site says which ones do instead of promising a speedup.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section section-panel">
+  <div class="section-head split-head">
+    <div>
+      <p class="eyebrow">The studio</p>
+      <h2>Built around the loop: write, listen, revise.</h2>
+      <p class="section-lede">The GUI exposes the same inference manager as the CLI, plus the supporting workflow.</p>
+    </div>
+    <a class="text-link" href="/usage.html">Studio guide →</a>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-row"><span class="mono idx">A</span><div><h3>Text-to-speech panel</h3><p>Editor with live character/word counts, language selection, backend switch, NFE steps, sampler, speed, seed and chunking controls.</p></div></div>
+    <div class="feature-row"><span class="mono idx">B</span><div><h3>Voice cloning</h3><p>Drag in a reference clip, auto-transcribe it with faster-whisper when installed, score the sample and save a reusable speaker profile.</p></div></div>
+    <div class="feature-row"><span class="mono idx">C</span><div><h3>Profiles &amp; adapters</h3><p>SQLite-backed profiles with reference samples, quality scores and <code>.vsp</code> import/export. Adapter checkpoints are discovered from <code>adapters/</code>.</p></div></div>
+    <div class="feature-row"><span class="mono idx">D</span><div><h3>Batch queue</h3><p>Priority queue with pause/resume/cancel, progress callbacks and optional per-job WAV output.</p></div></div>
+    <div class="feature-row"><span class="mono idx">E</span><div><h3>GPU monitor</h3><p>NVML-based VRAM, utilization and temperature polling with a memory-manager view when CUDA is present.</p></div></div>
+    <div class="feature-row"><span class="mono idx">F</span><div><h3>Presets &amp; precision</h3><p>Four VRAM-oriented presets and a quantization catalogue. Conversion actions that are not implemented are marked as such in the UI.</p></div></div>
+  </div>
+</section>
+
+<section class="section cta-section">
+  <div class="cta-card">
+    <div>
+      <p class="eyebrow">Ready when your GPU is</p>
+      <h2>Run it on your own machine.</h2>
+      <p>Start with the CLI, then open the studio. The first F5-TTS run downloads weights; after that inference is local.</p>
+    </div>
+    <div class="cta-actions">
+      <a class="btn btn-primary" href="/quickstart.html">Read the install guide</a>
+      <a class="btn btn-ghost" href="{{ repo_url }}" rel="noopener">View source</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
